@@ -51,6 +51,7 @@ test('sample → live investigation → add evidence → revised finding → cit
   await expect(page.locator('.summary-strip')).toContainText('₦189,700');
   await expect(page.locator('.summary-strip')).toContainText('0.75 CBM');
   await expect(page.getByRole('heading', { name: /A measurement supports a volume difference/ })).toBeVisible();
+  await expect(page.getByText('Up to date')).toBeVisible({ timeout: 60_000 }); // the Drafting Agent has finished revising the letter
 
   // open a source from a citation: viewer jumps to and highlights the passage
   await page.getByRole('button', { name: /Open source D4-p1-s\d+/ }).first().click();
