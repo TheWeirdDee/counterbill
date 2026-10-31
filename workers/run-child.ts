@@ -37,11 +37,13 @@ try {
     `update investigation_runs set status = $2, finished_at = now(), error_code = $3, error_message = $4, lease_expires_at = null where id = $1`,
     [runId, outcome.status, outcome.errorCode ?? null, outcome.errorMessage ?? null],
   );
-  if (outcome.status === 'failed' || outcome.status === 'cancelled') {
-    await query("update cases set status = case when $2 = 'cancelled' then status else 'failed' end, updated_at = now() where id = $1", [
-      (await query<{ case_id: string }>('select case_id from investigation_runs where id = $1', [runId]))[0]?.case_id,
-      outcome.status,
-    ]);
+  const caseId = (await query<{ case_id: string }>('select case_id from investigation_runs where id = $1', [runId]))[0]?.case_id;
+  if (caseId && outcome.status === 'failed') {
+    await query("update cases set status = 'failed', updated_at = now() where id = $1", [caseId]);
+  } else if (caseId && outcome.status === 'cancelled') {
+    // Do not leave the case saying "Investigating" after the run stopped.
+    const { settleCaseStatus } = await import('../src/server/runs');
+    await settleCaseStatus(caseId);
   }
 } catch (err) {
   code = 1;
