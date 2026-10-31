@@ -69,7 +69,11 @@ async function heartbeat() {
   await query("delete from worker_heartbeats where last_seen < now() - interval '1 day'");
 }
 
+let ticking = false;
 async function tick() {
+  // Parsing a large file can outlast the tick interval; overlapping ticks would race each other's parse leases.
+  if (ticking) return;
+  ticking = true;
   try {
     await heartbeat();
     await parsePendingDocuments(5);
@@ -81,6 +85,8 @@ async function tick() {
     }
   } catch (e) {
     console.error('[supervisor] tick error:', (e as Error).message);
+  } finally {
+    ticking = false;
   }
 }
 
