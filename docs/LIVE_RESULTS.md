@@ -129,6 +129,17 @@ Each attempt's trace is kept in `docs/traces/`.
 - The per-minute window is a fixed minute shared by all runs of this key, so a burst across a window boundary can still draw a 429; the retry path handles it.
 - Mozaik 4.2.0's Gemini adapter limitation (thought signatures) means no tool calling on Gemini; documented in `docs/DECISIONS.md`.
 
+## Re-run after the frontend redesign (31 October 2026)
+
+To confirm the redesign did not touch the investigation path, `pnpm live:check volume-dispute-aug-2026 survey` was run against the redesigned app (dev server and worker, `gemini-3.5-flash-lite`, free tier, no fallback):
+
+| Step | Run | Model calls | Result |
+|---|---|---|---|
+| First investigation | completed, no agent failed | 10 | Assessment v2, `declared_volume_conflicts_with_bill`, ₦298,100 against the packing-list estimate; 10 facts, 5 findings, letter v2 |
+| Add the published survey | `reassess`, completed, no agent failed | 6 | Assessment v3, `measured_volume_differs_basis_unresolved`, ₦189,700 at the measured 0.75 CBM; 19 facts, 7 superseded readings kept, letter v3 |
+
+One run on one small model, not a benchmark. The cargo-classification example and the rate-sheet step were not repeated in this pass; their earlier recorded results above are unchanged.
+
 ## Reproduce
 
 ```bash
