@@ -14,7 +14,7 @@ stated per row.** The default suite makes no call to any model provider; the rea
 | Unit | `pnpm test` | 49 passed (3 files): arithmetic, citations, letter merge, uploads, schemas, **provider limits** (429/5xx retries, quota, pacing, key rejection), Gemini schema dialect, classification guard, question de-duplication | n/a |
 | Integration | `pnpm test:integration` | 21 passed + 1 opt-in skipped (4 files): `story` 9, `resilience` 9, `live-path` 1, `model-limiter` 2; `live-gemini` skipped unless `RUN_LIVE_GEMINI=1` | `story`, `resilience`: **test mode** runner. `live-path`: **local fake of the OpenAI Responses API** |
 | Opt-in live | `RUN_LIVE_GEMINI=1 pnpm exec vitest run tests/integration/live-gemini.test.ts` | 1 passed | **Real Gemini API** (free tier): quota exhausted on `gemini-3.1-pro-preview` fails fast and clearly |
-| Browser e2e | `pnpm test:e2e` (production build served on :3100) | 19 passed (see note) | **test mode** runner |
+| Browser e2e | `pnpm test:e2e` (production build served on :3100) | 30 tests: 29 passed in the final full run, the 30th passed on its own re-run (see "Frontend redesign") | **test mode** runner |
 | Build | `pnpm build` (Next.js 16.4.3, Turbopack) | success | n/a |
 
 `pnpm exec vitest run` (unit + integration together): **70 passed, 1 skipped (the opt-in live test), 8 files**, 175 s.
@@ -24,6 +24,20 @@ skeleton, which shares a class with the real summary strip, just as it was repla
 the responsive suite passed 9/9 on re-run. An earlier full run had one different race (editing the letter while the Drafting
 Agent was still saving a newer version, correctly refused as a conflict); fixed the same way. Earlier runs also surfaced real defects that
 were fixed (see "What the tests found").
+
+## Frontend redesign (31 October 2026)
+
+Outcomes of the verification for the redesign described in [`FRONTEND_REDESIGN.md`](FRONTEND_REDESIGN.md):
+
+- `pnpm typecheck`, `pnpm lint`: clean. `pnpm build`: success (routes include `/docs`, `/examples`, `/examples/[slug]`, `/examples/[slug]/[caseId]/[[...tab]]`). `pnpm test`: 49 passed. `pnpm test:integration`: 21 passed, 1 opt-in skipped.
+- Browser run 1 (30 tests): 27 passed, 3 failed. All three were tests asserting things I changed on purpose (the "Live" connection label became "Connected"; a text match for "Agents" now also matched the small-screen pane switcher; a button whose invalid `aria-label` was removed because axe reported `label-content-name-mismatch`). I updated those assertions to the new behaviour; they check the same things.
+- Browser run 2 (30 tests): 29 passed, 1 failed (my corrected selector for "Agents" was still ambiguous with a second heading). Fixed with an exact match; that test then passed on its own (39 s). After this I changed the screenshot helper and one CSS print rule, and re-ran the landing responsive tests at 1280 and 390 (passed). I did not repeat the whole 30-test run a third time.
+- New `tests/e2e/visual.spec.ts` (11 tests): axe (WCAG 2 A/AA, includes colour contrast) is clean in light and dark on the landing page (with every FAQ answer open), examples, example detail, docs, login, signup, the empty dashboard, the dashboard with a case, new case, settings, and every workspace tab of an example; no console errors; computed fonts are Inter Tight / Inter and loaded; at 100% zoom root and body are 16 px, device pixel ratio 1, container at most 1280 px, header 68 to 76 px, hero heading within range at 1440, 1280 and 390; the sidebar is 224 to 240 px; every footer link returns a page and every anchor exists; `/demo` redirects to `/examples`; the FAQ, theme menu and mobile menu work from the keyboard; hero content is visible under reduced motion.
+- Existing responsive coverage (no horizontal overflow at 320, 375, 390, 768, 1024 and 1280) now also covers `/docs` and `/examples/...`; it passed.
+- The "1 Issue" indicator: a crawl of 16 routes in `next dev` (public, signed-in, example workspace; both colour schemes) logged no console error, warning or failed request, and the dev overlay showed no issue text. Not reproducible; see `FRONTEND_REDESIGN.md`.
+- Real provider (Gemini free tier, `gemini-3.5-flash-lite`): first investigation and survey revision on the redesigned app both completed, no agent failed; details in `LIVE_RESULTS.md`.
+
+Not checked: Safari, Firefox, a screen reader, a physical phone, browser zoom other than 100%, and any hosted deployment. Screenshots in `public/docs/` and `docs/screenshots/` are captured in test mode on a production build, and say so in the README.
 
 ## What the integration tests prove (real worker processes, real Mozaik runtime, real PostgreSQL)
 
