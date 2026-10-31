@@ -11,7 +11,6 @@ import {
   currentDraft,
   getCase,
   insertDraft,
-  latestAssessment,
   listCalculations,
   listDocuments,
   listFacts,
