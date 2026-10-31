@@ -8,14 +8,25 @@ async function overflow(page: Page) {
   return page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
 }
 const shot = async (page: Page, name: string, full = true) => {
-  if (SHOTS) await page.screenshot({ path: `docs/screenshots/${name}.png`, fullPage: full });
+  if (!SHOTS) return;
+  if (full) {
+    // sections reveal as they scroll into view: walk the page so a full-page capture shows them as a reader sees them
+    const h = await page.evaluate(() => document.documentElement.scrollHeight);
+    for (let y = 0; y < h; y += 450) {
+      await page.evaluate((top) => window.scrollTo(0, top), y);
+      await page.waitForTimeout(150);
+    }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(900);
+  }
+  await page.screenshot({ path: `docs/screenshots/${name}.png`, fullPage: full });
 };
 
 test.describe('public pages at every width', () => {
   for (const w of WIDTHS) {
     test(`landing and samples at ${w}px: no horizontal overflow, accessible navigation`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: 900 });
-      for (const url of ['/', '/demo', `/demo/${SLUG}`, '/login']) {
+      for (const url of ['/', '/examples', `/examples/${SLUG}`, '/docs', '/login']) {
         await page.goto(url);
         expect(await overflow(page), `${url} @${w}`).toBeLessThanOrEqual(0);
       }
@@ -27,10 +38,10 @@ test.describe('public pages at every width', () => {
         await expect(page.getByText('Menu', { exact: true })).toHaveCount(0); // icon only
         await burger.click();
         await expect(burger).toHaveAttribute('aria-expanded', 'true');
-        await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'See a live case' })).toBeVisible();
+        await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Examples', exact: true })).toBeVisible();
       } else {
         await expect(burger).toBeHidden();
-        await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'See a live case' })).toBeVisible();
+        await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Examples', exact: true })).toBeVisible();
       }
       if (w === 1280) await shot(page, 'landing');
       if (w === 390) await shot(page, 'landing-mobile');
@@ -40,9 +51,9 @@ test.describe('public pages at every width', () => {
 
 test('investigation workspace is usable from 320px to desktop; footer is not on the workspace', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto(`/demo/${SLUG}`);
-  await page.getByRole('button', { name: /Investigate this sample case/ }).click();
-  await page.waitForURL(new RegExp(`/demo/${SLUG}/[0-9a-f-]{36}`));
+  await page.goto(`/examples/${SLUG}`);
+  await page.getByRole('button', { name: /Start this example/ }).click();
+  await page.waitForURL(new RegExp(`/examples/${SLUG}/[0-9a-f-]{36}`));
   await expect(page.getByText(/Assessment v1 ·/)).toBeVisible({ timeout: 90_000 });
   await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'Add published survey finding' }).click();
@@ -108,19 +119,22 @@ test('light, dark and system themes apply and persist', async ({ page }) => {
   await page.goto('/');
   const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   const light = await bg();
-  await page.getByRole('group', { name: 'Colour theme' }).getByRole('button', { name: 'Dark' }).click();
+  const menu = () => page.getByRole('button', { name: /Colour theme/ });
+  await menu().click();
+  await page.getByRole('menuitemradio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   const dark = await bg();
   expect(dark).not.toBe(light);
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await page.getByRole('group', { name: 'Colour theme' }).getByRole('button', { name: 'System' }).click();
+  await menu().click();
+  await page.getByRole('menuitemradio', { name: 'System' }).click();
   await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.+/);
 });
 
 test('reduced motion removes animation', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/demo');
+  await page.goto('/examples');
   const d = await page.evaluate(() => getComputedStyle(document.querySelector('.btn')!).transitionDuration);
   expect(parseFloat(d)).toBeLessThan(0.01);
 });
