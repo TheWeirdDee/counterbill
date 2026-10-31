@@ -198,7 +198,7 @@ async function runCase(triggers: string[], causation: string) {
       };
     },
     async after({ assessment, created, revised, questions, changed }) {
-      s.inputSignature.set('case', await signature(s.caseId, triggers));
+      s.inputSignature.set('case', sig); // what this pass read, not what exists now
       s.assessmentVersion = assessment.version;
       for (const f of created) await emit('finding.proposed', { findingRef: f.ref, topic: f.topic, by: 'case' }, { producer: 'case', causationId: causation });
       for (const r of revised) await emit('finding.revised', { findingRef: r.to.ref, topic: r.to.topic, supersedes: r.to.supersedesRef, by: 'case' }, { producer: 'case', causationId: causation });
