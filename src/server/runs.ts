@@ -2,7 +2,7 @@
  * Run control used by API routes: start, reassess (targeted), retry and cancel. Long-running work happens in
  * workers; these functions only record intent in the database (idempotently).
  */
-import { one, query, tx } from '@/db/pool';
+import { one, pool, query, tx } from '@/db/pool';
 import { activeOrQueuedRun, appendEvent, createRun, getCase, getRun, listDocuments, touchCase, type RunRow } from '@/db/repo';
 import { AGENT_ROLES, type AgentRole } from '@/domain/schemas';
 import { inferenceReadiness } from './config';
@@ -119,6 +119,30 @@ export async function cancelActiveRun(caseId: string): Promise<boolean> {
      where case_id = $1 and status in ('queued','running') returning id`,
     [caseId],
   );
-  if (rows.length) await touchCase(await import('@/db/pool').then((m) => m.pool()), caseId);
+  if (rows.length) await touchCase(pool(), caseId);
   return rows.length > 0;
+}
+
+/** Marks a running run as failed (worker crashed or lease expired) and tells the user how to recover. */
+export async function failRun(runId: string, caseId: string, code: string, message: string): Promise<boolean> {
+  const row = await one<{ evidence_revision: number }>(
+    `update investigation_runs set status = 'failed', finished_at = now(), error_code = $2, error_message = $3, lease_expires_at = null
+     where id = $1 and status = 'running' returning evidence_revision`,
+    [runId, code, message],
+  );
+  if (!row) return false;
+  await query("update cases set status = 'failed', updated_at = now() where id = $1", [caseId]);
+  await appendEvent({ caseId, runId, type: 'run.failed', producer: 'system', payload: { code, message }, evidenceRevision: row.evidence_revision, idempotencyKey: `${runId}:run.failed:${code}` });
+  return true;
+}
+
+/** Runs whose lease expired have no live worker. Returns the ids that were failed. */
+export async function reapStaleRuns(onReap?: (runId: string) => void): Promise<string[]> {
+  const stale = await query<{ id: string; case_id: string }>("select id, case_id from investigation_runs where status = 'running' and lease_expires_at < now()");
+  const out: string[] = [];
+  for (const s of stale) {
+    onReap?.(s.id);
+    if (await failRun(s.id, s.case_id, 'worker_lost', 'The worker stopped responding. Partial results were kept; you can retry.')) out.push(s.id);
+  }
+  return out;
 }
