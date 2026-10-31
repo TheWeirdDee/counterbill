@@ -56,7 +56,7 @@ pnpm db:migrate                 # in a second terminal
 pnpm dev                        # web on :3000 + worker supervisor
 ```
 
-Open http://localhost:3000 → **Investigate a sample case**. `pnpm demo:check` reports, without calling a model, whether this machine is ready and in which mode.
+Open http://localhost:3000 → **Explore an example** → **Start this example**. `pnpm demo:check` reports, without calling a model, whether this machine is ready and in which mode.
 
 ### Gemini free tier (the configuration this project was run with)
 
@@ -110,7 +110,7 @@ Other providers supported by Mozaik work with the same code (`OPENAI_API_KEY` / 
 
 ## Reproduce the key moment
 
-1. Open **Sample cases → Investigate this sample case**. Four agent rows start at once; the **Activity** tab → *Concurrency view* shows their recorded start/finish times and the overlap between them.
+1. Open **Examples → Start this example**. Four agent rows start at once; the **Activity** tab → *Concurrency view* shows their recorded start/finish times and the overlap between them.
 2. The first reading: *"The packing-list estimate conflicts with the bill"*, difference ₦298,100 against a **shipper's estimate** (a comparison, not a measurement). Billing first reports its inputs as missing because it does not wait for Evidence; it recalculates when Evidence records the facts.
 3. Click **Add published survey finding**. Evidence, then Billing, Contract, Timeline wake on events; the Case Agent revises: *"A survey supports a 0.35 CBM volume difference (₦189,700 at the billed rate); the contractual rating basis is unresolved."* A banner lists what changed, the earlier finding appears as **superseded**, and the letter is revised.
 4. Click a citation chip (e.g. `D4-p1-s5`): the document opens at the highlighted passage.
@@ -191,7 +191,7 @@ disappears is failed with a recovery message and can be retried.
 
 ### Routes
 
-Public: `/`, `/demo`, `/demo/[slug]` (disclosure + launch), `/demo/[slug]/[caseId]/[tab]` (live sample workspace), `/login`, `/signup`.
+Public: `/`, `/examples`, `/examples/[slug]` (sources, disclosure, launch), `/examples/[slug]/[caseId]/[tab]` (your own copy of an example, as a workspace), `/docs` (user guide and technical internals, deep-linkable), `/login`, `/signup`. The old `/demo/...` URLs redirect permanently to `/examples/...`.
 Signed in: `/app`, `/app/new`, `/app/cases/[id]/[evidence|findings|timeline|letter|activity]`, `/app/settings`.
 API (typed errors `{code, message, retryable}`): `/api/cases`, `/api/cases/:id` (+ `documents`, `facts`, `start`, `reassess`, `retry`, `cancel`, `findings/:ref/challenge`, `questions/:ref/answer`, `letter`, `letter/reconcile`, `exports`, `events` (SSE), `trace`), `/api/demo/cases`, `/api/demo/cases/:slug/run`, `/api/demo/runs/:runId/{events,trace}`, `/api/auth/*`, `/api/account`, `/api/health`.
 
@@ -228,7 +228,7 @@ Run on 31 October 2026 on the development machine (Windows 11, Node 24, PostgreS
 | `pnpm test:integration` | Real worker processes + real Mozaik runtime + PostgreSQL: concurrency, survey → revision → letter, duplicate delivery, targeted wake-ups, contract minimum, correction provenance, malformed/invalid-citation output, injection, failure/partial/retry, stale results, cancellation, crashed worker, missing credentials, PDF content, live provider path | **Test mode** or **fake provider** |
 | `RUN_LIVE_GEMINI=1 pnpm exec vitest run tests/integration/live-gemini.test.ts` | Opt-in, real Gemini API: a model with no free quota fails fast with a clear error, bounded calls, no fallback | **Real Gemini** (free tier) |
 | `pnpm live:check <sample> [steps]` | Not a test: runs a sample through the running app against your real key and saves the trace (how `docs/LIVE_RESULTS.md` was produced) | **Real Gemini** (free tier) |
-| `pnpm test:e2e` | Browser: sample journey → PDF, private case upload/correct/export, second account isolation, SSE interruption, refresh, offline source site, 6 viewport widths, keyboard, themes, reduced motion | **Test mode** |
+| `pnpm test:e2e` | Browser: example journey → PDF, private case upload/correct/export, second account isolation, SSE interruption, refresh, offline source site, 6 viewport widths, keyboard, themes, reduced motion; plus `visual.spec.ts`: computed fonts, widths at 100% zoom, axe (WCAG 2 A/AA incl. colour contrast) in light and dark on public, signed-in and workspace pages, footer links, FAQ/theme/mobile menus | **Test mode** |
 
 Integration and e2e tests need `pnpm db:start` running (they use the `counterbill_test` database).
 `pnpm demo:check` checks readiness without calling a model; `pnpm gemini:models` makes one-word requests to find which Gemini models your free tier serves.
