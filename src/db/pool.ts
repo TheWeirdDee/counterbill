@@ -8,7 +8,14 @@ const g = globalThis as unknown as { __cbPool?: pg.Pool };
 
 export function pool(): pg.Pool {
   if (!g.__cbPool) {
-    g.__cbPool = new pg.Pool({ connectionString: config.databaseUrl, max: Number(process.env.DATABASE_POOL_MAX ?? 10) });
+    g.__cbPool = new pg.Pool({
+      connectionString: config.databaseUrl,
+      max: Number(process.env.DATABASE_POOL_MAX ?? 10),
+      // a hosted database may be waking from suspend, and drops idle sockets: wait for it, and keep live ones alive
+      connectionTimeoutMillis: Number(process.env.DATABASE_CONNECT_TIMEOUT_MS ?? 20000),
+      idleTimeoutMillis: 30000,
+      keepAlive: true,
+    });
     g.__cbPool.on('error', (err) => console.error('[db] idle client error', err.message));
   }
   return g.__cbPool;
