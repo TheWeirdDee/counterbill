@@ -18,9 +18,10 @@ export default defineConfig({
   use: { baseURL: `http://localhost:${PORT}`, trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: `npx concurrently -k -n web,worker "npx next dev -p ${PORT}" "npx tsx workers/supervisor.ts"`,
+    // A production build: no hot reload, and the same artefact people would deploy.
+    command: `npx next build && npx concurrently -k -n web,worker "npx next start -p ${PORT}" "npx tsx workers/supervisor.ts"`,
     url: `http://localhost:${PORT}/api/health`,
-    timeout: 120_000,
+    timeout: 420_000,
     reuseExistingServer: false,
     env: {
       DATABASE_URL: DB,
