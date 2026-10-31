@@ -225,7 +225,9 @@ async function runBilling(reason: string, triggerEventId: string) {
       };
     },
     async after({ changedCalcs, topics, findings }) {
-      s.inputSignature.set('billing', await signature(s.caseId));
+      // The signature of what this pass READ (captured before it started). Recomputing it here would hide facts
+      // that arrived while the model was thinking and wrongly skip the follow-up pass.
+      s.inputSignature.set('billing', sig);
       for (const { f, outcome } of findings) {
         await emit(outcome === 'revised' ? 'finding.revised' : 'finding.proposed', { findingRef: f.ref, topic: f.topic, supersedes: f.supersedesRef, by: 'billing' }, { producer: 'billing', causationId: triggerEventId });
       }
