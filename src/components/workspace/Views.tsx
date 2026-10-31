@@ -319,7 +319,7 @@ export function TimelineView() {
   const userQ = state.questions.filter((q) => q.status === 'open' && q.audience === 'user');
   const suggestions = ['The original quote or rate sheet that shows how chargeable volume is calculated', 'WhatsApp or email messages with the freight company about the booking', 'Invoice metadata: issue date and invoice number', 'A signed survey or measurement report'];
   return (
-    <div className="two-col" style={{ gridTemplateColumns: 'minmax(0,1.6fr) minmax(0,1fr)' }}>
+    <div className="two-col timeline-cols">
       <section aria-labelledby="tl-h">
         <h2 id="tl-h">Timeline</h2>
         {events.length === 0 ? (
