@@ -1,0 +1,54 @@
+# Repeats the checks on every push. No secrets are used and no model provider is called: integration and browser tests
+# use the labelled test-mode runner (see docs/TEST_RESULTS.md); the real-model runs are separate and manual.
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: counterbill
+          POSTGRES_PASSWORD: counterbill
+          POSTGRES_DB: counterbill_test
+        ports: ['54329:5432']
+        options: >-
+          --health-cmd "pg_isready -U counterbill" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm test:integration
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7
+
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the Docker image used for hosting
+        run: docker build -t counterbill:ci .
+      - name: Image starts and refuses to run without its required settings
+        run: |
+          set +e
+          docker run --rm counterbill:ci 2>&1 | tee out.txt
+          grep -q "missing required environment variable" out.txt
