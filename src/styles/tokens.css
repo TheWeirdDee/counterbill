@@ -1,0 +1,118 @@
+/*
+ * Design tokens. One deliberate direction: editorial commercial operations. Near-black surfaces, precise document
+ * layouts, a single restrained orange accent. Green / amber / red are reserved for meaningful status.
+ * Contrast of every text/background pair below is checked by tests/e2e/visual.spec.ts (axe) in both themes.
+ */
+:root {
+  /* Light */
+  --canvas: #f7f7f5;
+  --surface: #ffffff;
+  --raised: #efefeb;
+  --border: #dcdcd6;
+  --border-strong: #b9b9b0;
+  --control-border: #8a8a82; /* input edges: 3:1 against canvas, surface and raised (WCAG 1.4.11) */
+  --text: #18181b;
+  --text-2: #575762;
+  --accent: #c2410c;
+  --accent-hover: #9a3412;
+  --accent-text: #ffffff; /* text on an accent-filled button */
+  --accent-soft: rgba(194, 65, 12, 0.08);
+  --focus: #1d4ed8;
+
+  --good: #15803d;
+  --warn: #92400e;
+  --bad: #b91c1c;
+  --good-soft: rgba(21, 128, 61, 0.1);
+  --warn-soft: rgba(180, 83, 9, 0.12);
+  --bad-soft: rgba(185, 28, 28, 0.09);
+
+  --grid-line: rgba(24, 24, 27, 0.045);
+  --shadow: 0 1px 0 rgba(24, 24, 27, 0.04), 0 12px 32px -16px rgba(24, 24, 27, 0.18);
+  --paper: #fffffd;
+  --paper-text: #18181b;
+
+  /* Legacy names the app components use, mapped onto the tokens above. */
+  --bg: var(--canvas);
+  --surface-2: var(--raised);
+  --ink: var(--text);
+  --muted: var(--text-2);
+  --accent-ink: var(--accent-text);
+
+  --font-display: 'Inter Tight Variable', 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font: var(--font-body);
+  --mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --serif: Georgia, 'Times New Roman', serif;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --header-h: 72px;
+  --content-max: 1200px;
+  color-scheme: light;
+}
+
+/* Dark: the system preference, unless the person chose Light explicitly. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --canvas: #09090b;
+    --surface: #111114;
+    --raised: #19191e;
+    --border: #2b2b33;
+    --border-strong: #44444f;
+    --control-border: #6b6b78;
+    --text: #f5f5f7;
+    --text-2: #a5a5b1;
+    --accent: #f97316;
+    --accent-hover: #fb923c;
+    --accent-text: #09090b;
+    --accent-soft: rgba(249, 115, 22, 0.12);
+    --focus: #7cb2ff;
+    --good: #4ade80;
+    --warn: #fbbf24;
+    --bad: #f87171;
+    --good-soft: rgba(74, 222, 128, 0.1);
+    --warn-soft: rgba(251, 191, 36, 0.1);
+    --bad-soft: rgba(248, 113, 113, 0.12);
+    --grid-line: rgba(245, 245, 247, 0.04);
+    --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 20px 40px -20px rgba(0, 0, 0, 0.8);
+    --paper: #f3f1ea;
+    --paper-text: #18181b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --canvas: #09090b;
+  --surface: #111114;
+  --raised: #19191e;
+  --border: #2b2b33;
+  --border-strong: #44444f;
+  --control-border: #6b6b78;
+  --text: #f5f5f7;
+  --text-2: #a5a5b1;
+  --accent: #f97316;
+  --accent-hover: #fb923c;
+  --accent-text: #09090b;
+  --accent-soft: rgba(249, 115, 22, 0.12);
+  --focus: #7cb2ff;
+  --good: #4ade80;
+  --warn: #fbbf24;
+  --bad: #f87171;
+  --good-soft: rgba(74, 222, 128, 0.1);
+  --warn-soft: rgba(251, 191, 36, 0.1);
+  --bad-soft: rgba(248, 113, 113, 0.12);
+  --grid-line: rgba(245, 245, 247, 0.04);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 20px 40px -20px rgba(0, 0, 0, 0.8);
+  --paper: #f3f1ea;
+  --paper-text: #18181b;
+  color-scheme: dark;
+}
