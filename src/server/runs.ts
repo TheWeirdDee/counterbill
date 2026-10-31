@@ -47,7 +47,7 @@ export async function startInvestigation(caseId: string): Promise<{ run: RunRow;
  */
 export async function requestReassess(
   caseId: string,
-  args: { reason: string; documentRefs?: string[]; targetedAgents?: AgentRole[] },
+  args: { reason: string; documentRefs?: string[]; targetedAgents?: AgentRole[]; event?: { type: string; payload: Record<string, unknown> } },
 ): Promise<RunRow | null> {
   const readiness = inferenceReadiness();
   return tx(async (db) => {
@@ -61,9 +61,10 @@ export async function requestReassess(
       return null;
     }
     if (queued) {
-      const q = queued as { id: string; trigger: { documentRefs?: string[] } };
+      const q = queued as { id: string; trigger: { documentRefs?: string[]; events?: { type: string; payload: Record<string, unknown> }[] } };
       const merged = [...new Set([...(q.trigger.documentRefs ?? []), ...(args.documentRefs ?? [])])];
-      await query('update investigation_runs set trigger = $2, evidence_revision = $3 where id = $1', [q.id, JSON.stringify({ reason: args.reason, documentRefs: merged }), c.revision], db);
+      const events = [...(q.trigger.events ?? []), ...(args.event ? [args.event] : [])];
+      await query('update investigation_runs set trigger = $2, evidence_revision = $3 where id = $1', [q.id, JSON.stringify({ reason: args.reason, documentRefs: merged, events }), c.revision], db);
       return getRun(q.id, db);
     }
     if (Number(everRan?.n ?? 0) === 0) return null; // case not started yet: the user starts it explicitly
@@ -75,7 +76,7 @@ export async function requestReassess(
       caseId,
       kind: 'reassess',
       evidenceRevision: c.revision,
-      trigger: { reason: args.reason, documentRefs: args.documentRefs ?? [] },
+      trigger: { reason: args.reason, documentRefs: args.documentRefs ?? [], events: args.event ? [args.event] : [] },
       targetedAgents: args.targetedAgents ?? [],
       inferenceMode: readiness.mode,
       model: readiness.model,
