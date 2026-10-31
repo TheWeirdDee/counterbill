@@ -11,3 +11,7 @@ playwright-report/
 coverage/
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# scratch
+.tmp/
+.tmp-*
