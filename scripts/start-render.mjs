@@ -18,6 +18,16 @@ if (missing.length) {
   console.error(`[start] missing required environment variable(s): ${missing.join(', ')}`);
   process.exit(1);
 }
+try {
+  const host = new URL(process.env.DATABASE_URL).hostname;
+  if (['localhost', '127.0.0.1', '::1', '[::1]', 'db.local'].includes(host)) {
+    console.error(`[start] DATABASE_URL points at ${host}, which is inside this container and has no database. Set it to the Neon connection string in the Render dashboard (Environment).`);
+    process.exit(1);
+  }
+} catch {
+  console.error('[start] DATABASE_URL is not a valid connection URL. Paste the full Neon string (postgresql://user:password@host/dbname?sslmode=verify-full).');
+  process.exit(1);
+}
 if (process.env.COUNTERBILL_INFERENCE) {
   console.error('[start] COUNTERBILL_INFERENCE is set. It is for tests only and must be unset on a deployment.');
   process.exit(1);
