@@ -22,6 +22,7 @@ import {
 } from '@/db/repo';
 import { AGENT_ROLES, type AgentRole } from '@/domain/schemas';
 import { config, inferenceReadiness } from '@/server/config';
+import { acquireModelSlot } from '@/server/model-limiter';
 import { createBillingAgent } from './agents/billing';
 import { createCaseAgent } from './agents/case';
 import { createContractAgent } from './agents/contract';
@@ -73,7 +74,13 @@ export async function runInvestigation(runId: string): Promise<RunOutcome> {
   // ---- runtime (initialised once in this process)
   const inner: InferenceRunner =
     readiness.mode === 'test' ? new ScriptedInferenceRunner() : new DefaultInferenceRunner(supportedModels, requestValidator as never);
-  const runner = new InstrumentedRunner(inner, config.maxModelCallsPerRun, runnerHooks, (n) => void query('update investigation_runs set model_calls = $2 where id = $1', [runId, n]).catch(() => {}));
+  const runner = new InstrumentedRunner(inner, config.maxModelCallsPerRun, runnerHooks, (n) => void query('update investigation_runs set model_calls = $2 where id = $1', [runId, n]).catch(() => {}), {
+    maxRetries: config.modelMaxRetries,
+    maxWaitMs: config.modelMaxWaitMs,
+    requestsPerMinute: readiness.mode === 'test' ? 0 : config.modelRequestsPerMinute,
+    // One free-tier key = one quota, shared by every run and worker process.
+    acquire: readiness.mode === 'test' || !config.modelRequestsPerMinute ? undefined : () => acquireModelSlot(`model:${readiness.model}`, config.modelRequestsPerMinute),
+  });
   const st = new CounterbillState();
   st.caseId = c.id;
   st.runId = runId;
