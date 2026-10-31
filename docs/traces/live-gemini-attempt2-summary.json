@@ -1,0 +1,86 @@
+{
+  "slug": "volume-dispute-aug-2026",
+  "caseId": "6bb2395a-d2f5-42f0-96f6-ff52269be77f",
+  "stages": [
+    {
+      "label": "first",
+      "run": {
+        "kind": "start",
+        "status": "partial",
+        "calls": 10,
+        "error": "Finished with limitations: case did not complete."
+      },
+      "assessment": {
+        "v": 1,
+        "cls": "measured_volume_differs_basis_unresolved",
+        "headline": "Billed volume exceeds declared volume without contractual basis for measurement",
+        "reason": null
+      },
+      "diffs": {
+        "declared": "₦298,100"
+      },
+      "facts": 8,
+      "findings": 2,
+      "superseded": 1,
+      "draft": {
+        "v": 1
+      },
+      "agentsFailed": []
+    },
+    {
+      "label": "survey",
+      "run": {
+        "kind": "reassess",
+        "status": "partial",
+        "calls": 6,
+        "error": "Finished with limitations: case did not complete."
+      },
+      "assessment": {
+        "v": 1,
+        "cls": "measured_volume_differs_basis_unresolved",
+        "headline": "Billed volume exceeds declared volume without contractual basis for measurement",
+        "reason": null
+      },
+      "diffs": {
+        "declared": "₦298,100",
+        "measured": "₦189,700"
+      },
+      "facts": 17,
+      "findings": 4,
+      "superseded": 2,
+      "draft": {
+        "v": 1
+      },
+      "agentsFailed": [
+        "case: invalid_model_output: findings[2] (interpretation:contract_terms): a \"sourced\" finding must cite at least one fact, calculation or span (or be labelled basis \"inference\")"
+      ]
+    },
+    {
+      "label": "rate-sheet",
+      "run": {
+        "kind": "reassess",
+        "status": "completed",
+        "calls": 11,
+        "error": null
+      },
+      "assessment": {
+        "v": 3,
+        "cls": "contract_term_may_explain_bill",
+        "headline": "Case assessed with hypothetical contract term consideration",
+        "reason": "Revised findings to use allowed topic namespaces following previous feedback."
+      },
+      "diffs": {
+        "declared": "₦298,100",
+        "measured": "₦189,700",
+        "contract": "₦54,200"
+      },
+      "facts": 22,
+      "findings": 11,
+      "superseded": 8,
+      "draft": {
+        "v": 3
+      },
+      "agentsFailed": []
+    }
+  ]
+}
