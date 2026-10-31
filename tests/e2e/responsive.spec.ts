@@ -55,13 +55,13 @@ test('investigation workspace is usable from 320px to desktop; footer is not on 
     await page.setViewportSize({ width: w, height: 900 });
     for (const t of ['', '/evidence', '/findings', '/timeline', '/letter', '/activity']) {
       await page.goto(base + t);
-      await expect(page.locator('.summary-strip')).toBeVisible();
+      // wait for the real content (the loading skeleton uses the same class), then measure
+      await expect(page.locator('.summary-strip')).toContainText('₦189,700');
       expect(await overflow(page), `workspace${t} @${w}`).toBeLessThanOrEqual(0);
       // the key figure stays inside the viewport and readable
-      const box = await page.locator('.summary-strip').boundingBox();
-      expect(box!.x).toBeGreaterThanOrEqual(0);
-      expect(box!.x + box!.width).toBeLessThanOrEqual(w + 1);
-      await expect(page.locator('.summary-strip')).toContainText('₦189,700');
+      const box = (await page.locator('.summary-strip').boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(w + 1);
       await expect(page.getByText('A billing difference is not automatically a recoverable overcharge.')).toBeVisible();
     }
   }
