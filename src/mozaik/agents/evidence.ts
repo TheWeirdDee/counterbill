@@ -66,12 +66,13 @@ async function runEvidence(documentRefs: string[], triggerEventId: string, label
         let unit = f.unit?.trim() || null;
         let currency = f.currency?.trim().toUpperCase() || null;
         try {
-          if (/_cbm$/.test(f.key)) {
+          if (f.key !== 'rate_per_cbm' && /_cbm$/.test(f.key)) {
             unit = unit && /^(cbm|m3|m³|cm3|cm³)$/i.test(unit) ? unit : 'CBM';
             value = decimalToString(toCbm(parseDecimal(value), unit));
             unit = 'CBM';
           } else if (f.key === 'rate_per_cbm' || /_amount$/.test(f.key)) {
             value = decimalToString(parseDecimal(value));
+            unit = f.key === 'rate_per_cbm' ? 'per CBM' : unit;
             currency = currency ?? currencyFromQuote(f.quote);
             if (!currency) problems.push(`${where}: money values need a 3-letter currency`);
           } else if (f.key === 'package_count') {
