@@ -10,6 +10,10 @@ function useMobileMenu() {
   const [open, setOpen] = useState(false);
   const path = usePathname();
   useEffect(() => setOpen(false), [path]);
+  // links to a section of the page you are already on change only the hash, not the pathname
+  const closeOnLink = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('a')) setOpen(false);
+  };
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
@@ -21,11 +25,11 @@ function useMobileMenu() {
       document.body.style.overflow = prev;
     };
   }, [open]);
-  return [open, setOpen] as const;
+  return [open, setOpen, closeOnLink] as const;
 }
 
 export function PublicHeader({ signedIn }: { signedIn: boolean }) {
-  const [open, setOpen] = useMobileMenu();
+  const [open, setOpen, closeOnLink] = useMobileMenu();
   const path = usePathname() ?? '';
   const cur = (p: string) => (path === p || path.startsWith(p + '/') ? ('page' as const) : undefined);
   return (
@@ -33,7 +37,7 @@ export function PublicHeader({ signedIn }: { signedIn: boolean }) {
       <div className="container inner">
         <Wordmark />
         <HamburgerButton open={open} onClick={() => setOpen((o) => !o)} controls="public-nav" />
-        <nav id="public-nav" aria-label="Main" className={`nav-links${open ? ' open' : ''}`}>
+        <nav id="public-nav" aria-label="Main" className={`nav-links${open ? ' open' : ''}`} onClick={closeOnLink}>
           <Link href="/#product">Product</Link>
           <Link href="/#how-it-works">How it works</Link>
           <Link href="/examples" aria-current={cur('/examples')}>
@@ -63,13 +67,13 @@ export function PublicHeader({ signedIn }: { signedIn: boolean }) {
 
 /** Slim header for the investigation workspace: no marketing footer, same navigation vocabulary. */
 export function WorkspaceHeader() {
-  const [open, setOpen] = useMobileMenu();
+  const [open, setOpen, closeOnLink] = useMobileMenu();
   return (
     <header className="site-header">
       <div className="container inner" style={{ width: 'min(1240px, 100% - 40px)' }}>
         <Wordmark />
         <HamburgerButton open={open} onClick={() => setOpen((o) => !o)} controls="ws-nav" />
-        <nav id="ws-nav" aria-label="Main" className={`nav-links${open ? ' open' : ''}`}>
+        <nav id="ws-nav" aria-label="Main" className={`nav-links${open ? ' open' : ''}`} onClick={closeOnLink}>
           <Link href="/examples">Examples</Link>
           <Link href="/docs">Docs</Link>
           <Link href="/app">Your cases</Link>
