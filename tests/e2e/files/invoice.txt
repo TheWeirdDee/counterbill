@@ -1,0 +1,6 @@
+FREIGHT INVOICE
+Invoice date: 12 July 2026
+Packages: 6
+Billed volume: 1.10 CBM
+Rate: NGN 542,000 per CBM
+Freight charge: NGN 596,200
