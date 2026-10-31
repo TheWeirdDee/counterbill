@@ -1,0 +1,84 @@
+{
+  "slug": "volume-dispute-aug-2026",
+  "caseId": "7509bfeb-e61c-481d-930f-16cef262431a",
+  "stages": [
+    {
+      "label": "first",
+      "run": {
+        "kind": "start",
+        "status": "completed",
+        "calls": 11,
+        "error": null
+      },
+      "assessment": {
+        "v": 2,
+        "cls": "declared_volume_conflicts_with_bill",
+        "headline": "A comparison shows a volume difference against the bill; the contractual rating basis is unresolved.",
+        "reason": null
+      },
+      "diffs": {
+        "declared": "₦298,100"
+      },
+      "facts": 10,
+      "findings": 4,
+      "superseded": 3,
+      "draft": {
+        "v": 2
+      },
+      "agentsFailed": []
+    },
+    {
+      "label": "survey",
+      "run": {
+        "kind": "reassess",
+        "status": "completed",
+        "calls": 6,
+        "error": null
+      },
+      "assessment": {
+        "v": 3,
+        "cls": "measured_volume_differs_basis_unresolved",
+        "headline": "A survey establishes a measured volume of 0.75 CBM against a billed volume of 1.10 CBM, but the contractual rating basis remains unresolved.",
+        "reason": "Survey data D4 (F18) and calculation C5-C8 now provide a measured volume of 0.75 CBM, shifting the comparison from declared to measured volume."
+      },
+      "diffs": {
+        "declared": "₦298,100",
+        "measured": "₦189,700"
+      },
+      "facts": 19,
+      "findings": 5,
+      "superseded": 6,
+      "draft": {
+        "v": 3
+      },
+      "agentsFailed": []
+    },
+    {
+      "label": "rate-sheet",
+      "run": {
+        "kind": "reassess",
+        "status": "completed",
+        "calls": 8,
+        "error": null
+      },
+      "assessment": {
+        "v": 5,
+        "cls": "contract_term_may_explain_bill",
+        "headline": "A contract term with a 1.00 CBM minimum partially explains the billed volume, leaving a smaller discrepancy against the bill.",
+        "reason": "The introduction of contract term D5 establishing a 1.00 CBM minimum volume allows a revised comparison showing that the contractual baseline accounts for most of the billed charge."
+      },
+      "diffs": {
+        "declared": "₦298,100",
+        "measured": "₦189,700",
+        "contract": "₦54,200"
+      },
+      "facts": 23,
+      "findings": 6,
+      "superseded": 11,
+      "draft": {
+        "v": 5
+      },
+      "agentsFailed": []
+    }
+  ]
+}
