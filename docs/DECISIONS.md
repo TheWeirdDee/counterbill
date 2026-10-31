@@ -40,9 +40,20 @@ Material choices, and every place the build differs from `COUNTERBILL_PRD.md`.
 
 `COUNTERBILL_INFERENCE=test` plugs a deterministic scripted runner into the same Mozaik runtime as the model. Everything else (agents, events, validation, database, worker process) is real. Runs are labelled **TEST MODE** in the UI, trace, evidence summary and exports. It is never selected implicitly: with no key and no explicit test flag, starting an investigation returns a setup error.
 
+## Gemini free tier (live model)
+
+| Topic | Decision |
+|---|---|
+| Provider and model | Gemini via Mozaik's `GeminiGenerateContent`; credential `GEMINI_API_KEY` (the adapter reads exactly that name). Default `gemini-3.5-flash-lite`: the fastest of the four Gemini models Mozaik 4.2.0 supports that the author's free tier serves. `gemini-3.1-pro-preview` returned HTTP 429 with a ~21 h retry delay (no free quota); `gemini-3.8-flash` was slow and intermittently 503. Chosen by probing (`pnpm gemini:models`), not by assumption. |
+| Key handling | Server-side `.env`, git-ignored. A lower-case `gemini_api_key` is accepted and mapped to the upper-case name so it also works on case-sensitive hosts. |
+| Thinking level | `low` by default for Gemini (`MOZAIK_REASONING_EFFORT` to change). |
+| Schema | Mozaik sends the schema as Gemini's `responseSchema`, an OpenAPI-style subset: Counterbill strips `additionalProperties` and turns `anyOf: [X, null]` into `nullable`. Zod validates the real output regardless. |
+| Tools | Not offered to Gemini. Mozaik 4.2.0 drops Gemini 3's `thoughtSignature` on function calls, and the provider then rejects the follow-up turn (HTTP 400, recorded in `docs/traces`). The tools were optional; arithmetic is deterministic server code. |
+| Rate limits | Calls are paced (default 10/minute, counted in PostgreSQL so every run and worker shares one key's quota; loops still run concurrently). 429/5xx are retried at most 3 times, waiting the delay the provider gives (≤ 75 s); a longer delay, or a per-day limit, is reported at once as "quota exhausted", and the run keeps its partial results. Each wait is a stored, visible `agent.rate_limited` event. Never a fallback to another or paid model, never canned output. |
+| Validation instead of trust | The real model's mistakes shaped these gates: per-fact citation checks (bad facts dropped and counted, an answer with none is rejected); a deterministic guard that the assessment classification is supported by the calculations; Billing-owned finding topics and unusable finding operations are ignored rather than fatal; empty Billing slots become "missing inputs"; near-duplicate questions are merged and answered ones can be closed; up to 3 attempts per task with the reasons fed back. |
+
 ## Not done / out of scope here
 
-- **No live model run has been performed.** No provider credential was available in this environment. See README → Status.
 - No hosted deployment (needs an account the build could not create).
 - Analytics events (PRD §15) are not collected; nothing is sent anywhere.
 - XLSX export; CSV is provided.
