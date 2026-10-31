@@ -62,6 +62,14 @@ node scripts/hosted-check.mjs start https://YOUR-SERVICE.onrender.com   # return
 node scripts/hosted-check.mjs retry https://YOUR-SERVICE.onrender.com   # run is reported failed with a reason, then retry completes
 ```
 
+A manual restart rarely lands inside the roughly 30 s an investigation runs, because Render keeps the old instance serving until the new one is up. To interrupt reliably, let the script do it through the Render API: create an API key (Render → Account Settings → API Keys), put `RENDER_API_KEY=...` in `.env.render` (git-ignored, never commit it), and run:
+
+```bash
+node scripts/hosted-check.mjs interrupt https://YOUR-SERVICE.onrender.com  # start, suspend mid-run, resume, then the retry checks
+```
+
+Delete the API key in Render afterwards; it can control every service on the account.
+
 Pass criteria: every line prints `PASS`. Also open the site in a browser, sign up, create a case, upload a `.txt` invoice, and confirm it is still there after the restart. If any line fails, send me the output (it contains no secrets) and do not announce the deployment.
 
 ## 5. Measured locally under the Render Free limits
