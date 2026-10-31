@@ -1,0 +1,31 @@
+# Render Blueprint: one free Web Service that runs the web app and the investigation worker together.
+# Database: Neon Free PostgreSQL (see docs/DEPLOY_RENDER.md). Nothing here uses a paid service.
+#
+# The three values marked `sync: false` are asked for in the Render dashboard when the Blueprint is created and are never
+# written to this file or to git. COUNTERBILL_INFERENCE and COUNTERBILL_ALLOW_TEST_IN_PRODUCTION must stay unset.
+services:
+  - type: web
+    name: counterbill
+    runtime: docker
+    plan: free
+    region: frankfurt # keep it next to your Neon region (aws-eu-central-1)
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: false
+    envVars:
+      - key: DATABASE_URL # Neon DIRECT connection string, with sslmode=verify-full
+        sync: false
+      - key: PUBLIC_APP_URL # https://<your-service>.onrender.com
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: MOZAIK_MODEL
+        value: gemini-3.5-flash-lite
+      - key: MAX_CONCURRENT_RUNS
+        value: '1' # one investigation at a time; each still runs its six agents concurrently (see the measurements in docs/DEPLOY_RENDER.md)
+      - key: DATABASE_POOL_MAX
+        value: '5'
+      - key: WORKER_TICK_MS
+        value: '2000'
