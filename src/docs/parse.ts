@@ -33,7 +33,7 @@ export class UploadRejected extends Error {
 
 export function sanitizeFilename(name: string): string {
   const base = path.basename(name.replace(/\\/g, '/')).normalize('NFKC');
-  const cleaned = base.replace(/[^\p{L}\p{N}._ ()+-]/gu, '_').replace(/\.{2,}/g, '.').trim().slice(0, 120);
+  const cleaned = base.replace(/[^\p{L}\p{N}._ ()+20132014-]/gu, '_').replace(/\.{2,}/g, '.').trim().slice(0, 120);
   return cleaned || 'document';
 }
 
