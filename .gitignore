@@ -15,3 +15,4 @@ tsconfig.tsbuildinfo
 # scratch
 .tmp/
 .tmp-*
+.next-e2e/
