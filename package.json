@@ -22,7 +22,9 @@
     "test": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
-    "demo:check": "tsx scripts/demo-check.ts"
+    "demo:check": "tsx scripts/demo-check.ts",
+    "live:check": "node scripts/live-check.mjs",
+    "gemini:models": "node scripts/gemini-models.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "^5.3.0",
