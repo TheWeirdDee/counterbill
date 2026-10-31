@@ -64,7 +64,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
       <p style={{ marginTop: 16 }}>
         {mode === 'login' ? (
           <>
-            New here? <Link href={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>Create an account</Link> or <Link href="/demo">try a sample case without one</Link>.
+            New here? <Link href={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>Create an account</Link> or <Link href="/examples">explore an example case without one</Link>.
           </>
         ) : (
           <>
