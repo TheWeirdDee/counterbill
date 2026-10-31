@@ -7,6 +7,8 @@
  *   node scripts/hosted-check.mjs verify <base-url>   after a restart: the same case, letter and exports are still there
  *   node scripts/hosted-check.mjs start  <base-url>   start an example investigation and return once an agent is running (to interrupt it)
  *   node scripts/hosted-check.mjs retry  <base-url>   after an interruption: wait for the run to be marked failed, retry, wait for completion
+ *   node scripts/hosted-check.mjs interrupt <base-url>  start, then stop the Render service mid-run (suspend + resume through the
+ *                                                        Render API), then retry. Needs RENDER_API_KEY (env or .env.render).
  *
  * `run` uses the configured real model (no test mode) and spends free-tier quota. State for `verify` and `retry` is kept
  * in .data/hosted/state.json (git-ignored): it contains the browser cookie of the example case, so keep it private.
@@ -15,8 +17,8 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 
 const [mode, baseArg] = process.argv.slice(2);
-if (!['ready', 'run', 'verify', 'start', 'retry'].includes(mode) || !baseArg) {
-  console.log('usage: node scripts/hosted-check.mjs <ready|run|verify|start|retry> <base-url>');
+if (!['ready', 'run', 'verify', 'start', 'retry', 'interrupt'].includes(mode) || !baseArg) {
+  console.log('usage: node scripts/hosted-check.mjs <ready|run|verify|start|retry|interrupt> <base-url>');
   process.exit(2);
 }
 const base = baseArg.replace(/\/$/, '');
@@ -166,11 +168,66 @@ async function retry() {
   check('retry completed', done?.latestRun?.status === 'completed', `run ${done?.latestRun?.status}, assessment v${done?.latestAssessment?.version}`);
 }
 
+/** Render API (only for `interrupt`). The key is read from the environment or .env.render and is never printed. */
+function renderKey() {
+  if (process.env.RENDER_API_KEY) return process.env.RENDER_API_KEY.trim();
+  if (fs.existsSync('.env.render')) {
+    const line = fs.readFileSync('.env.render', 'utf8').split(/\r?\n/).find((l) => l.startsWith('RENDER_API_KEY='));
+    if (line) return line.slice('RENDER_API_KEY='.length).trim();
+  }
+  return null;
+}
+async function renderApi(key, path, method = 'GET') {
+  const r = await fetch('https://api.render.com/v1' + path, { method, headers: { Authorization: `Bearer ${key}`, Accept: 'application/json' } });
+  return { status: r.status, body: await r.json().catch(() => null) };
+}
+
+async function interrupt() {
+  const key = renderKey();
+  if (!key) { console.log('Set RENDER_API_KEY (or put RENDER_API_KEY=... in .env.render) first. Create it in Render: Account Settings -> API Keys.'); process.exit(2); }
+  const host = new URL(base).host;
+  const list = await renderApi(key, '/services?limit=100');
+  check('Render API key accepted', list.status === 200, `status ${list.status}`);
+  if (list.status !== 200) return;
+  const svc = (list.body ?? []).map((x) => x.service ?? x).find((x) => (x.serviceDetails?.url ?? '').includes(host));
+  check(`Render service for ${host} found`, !!svc, svc ? `${svc.name} (${svc.id})` : 'no service with that URL');
+  if (!svc) return;
+
+  await start();
+  if (!results.every((r) => r.ok)) return;
+  const st = loadState();
+  const before = (await json(`/api/cases/${st.caseId}`)).body?.latestRun?.status;
+  const sus = await renderApi(key, `/services/${svc.id}/suspend`, 'POST');
+  check('service suspended while the investigation was running', sus.status >= 200 && sus.status < 300 && before === 'running', `suspend status ${sus.status}, run was ${before}`);
+  // wait until the instance has actually stopped serving
+  const t0 = Date.now();
+  for (;;) {
+    await sleep(3000);
+    const h = await fetch(base + '/api/health').then((r) => r.status).catch(() => 0);
+    if (h !== 200 || Date.now() - t0 > 120_000) { console.log(`  instance stopped serving after ${Math.round((Date.now() - t0) / 1000)} s (health ${h})`); break; }
+  }
+  const res = await renderApi(key, `/services/${svc.id}/resume`, 'POST');
+  check('service resumed', res.status >= 200 && res.status < 300, `status ${res.status}`);
+  const t1 = Date.now();
+  let ok = false;
+  for (;;) {
+    await sleep(5000);
+    const r = await fetch(base + '/api/ready').then((x) => x.status).catch(() => 0);
+    process.stdout.write(`\r  waiting for the service to come back +${Math.round((Date.now() - t1) / 1000)}s (ready ${r})   `);
+    if (r === 200) { ok = true; break; }
+    if (Date.now() - t1 > 15 * 60_000) break;
+  }
+  console.log();
+  check('service is ready again after the restart', ok, `after ${Math.round((Date.now() - t1) / 1000)} s`);
+  if (ok) await retry();
+}
+
 if (mode === 'ready') await ready();
 if (mode === 'run') { await ready(); await run(); }
 if (mode === 'verify') await verify();
 if (mode === 'start') await start();
 if (mode === 'retry') await retry();
+if (mode === 'interrupt') await interrupt();
 const failed = results.filter((r) => !r.ok).length;
 console.log(`\n${results.length - failed}/${results.length} checks passed`);
 process.exit(failed ? 1 : 0);
