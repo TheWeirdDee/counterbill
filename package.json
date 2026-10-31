@@ -1,0 +1,55 @@
+{
+  "name": "counterbill",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Freight-bill dispute investigator built on concurrent Mozaik agents.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n web,worker -c blue,green \"next dev\" \"tsx workers/supervisor.ts\"",
+    "dev:web": "next dev",
+    "worker": "tsx workers/supervisor.ts",
+    "build": "next build",
+    "start": "next start",
+    "start:all": "concurrently -k -n web,worker \"next start\" \"tsx workers/supervisor.ts\"",
+    "db:start": "tsx scripts/db-start.ts",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test",
+    "demo:check": "tsx scripts/demo-check.ts"
+  },
+  "dependencies": {
+    "@mozaik-ai/core": "4.2.0",
+    "@pdf-lib/fontkit": "^1.1.1",
+    "decimal.js": "^10.6.0",
+    "dotenv": "^18.0.9",
+    "next": "16.4.3",
+    "pdf-lib": "^1.17.1",
+    "pg": "^8.23.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "unpdf": "^2.0.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "concurrently": "^10.0.6",
+    "embedded-postgres": "18.4.0-beta.17",
+    "eslint": "^10.13.0",
+    "eslint-config-next": "^16.4.3",
+    "tsx": "^4.23.15",
+    "typescript": "7.0.2",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.5"
+  }
+}
