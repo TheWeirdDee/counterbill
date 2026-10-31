@@ -22,14 +22,15 @@ It does not give legal advice, decide who is right, guarantee refunds, or send a
 |---|---|
 | Web app, worker, database, auth, uploads, parsing, viewer, corrections, letter editor, PDF/CSV export, dashboard, settings, data deletion | Built and exercised end to end (below). |
 | Six Mozaik agents running concurrently in an isolated worker process per run, with durable events, replay and bounded retries | Built. Verified by integration tests that start **real worker processes** on real PostgreSQL. |
-| **A run against a real language model** | **Not performed.** No provider credential was available where this was built. See [Run it with a real model](#run-it-with-a-real-model). |
-| Model calls in the automated tests | Either the labelled deterministic **test mode** runner (plugged into the same Mozaik runtime), or a local **fake of the OpenAI Responses API** that exercises Mozaik's real OpenAI adapter, strict JSON schemas and tool calling. Neither is a model. |
+| **Runs against a real language model** | **Done on Google Gemini's free tier** (`gemini-3.5-flash-lite` through Mozaik): both samples, the survey revision and the contract-minimum revision. Actual results, failures found and fixed, and the saved traces are in [`docs/LIVE_RESULTS.md`](docs/LIVE_RESULTS.md). This is a small number of runs on one small model, not a benchmark. |
+| Model calls in the automated tests | Either the labelled deterministic **test mode** runner (plugged into the same Mozaik runtime), a local **fake of the OpenAI Responses API**, or (opt-in, `RUN_LIVE_GEMINI=1`) the real Gemini API to prove the quota-exhausted path. The default suite makes no call to any provider. |
 | Hosted deployment | **Not deployed.** A `Dockerfile` and instructions are included; it needs an account the build could not create. |
 | Demo video | Not made. |
 
 Everything the UI says about being "TEST MODE" is literal: in test mode a scripted stand-in produces the agent outputs, and the
 UI, trace, evidence summary and exports say so. Test mode is never selected implicitly: with no key and no explicit flag,
-starting an investigation returns a setup error.
+starting an investigation returns a setup error. The same is true of the model: Counterbill never substitutes a different
+model, a paid model or canned output when the configured one fails; it stops with a clear error and keeps the partial results.
 
 ## The sample case (and how truthful it is)
 
@@ -49,7 +50,7 @@ Prerequisites: Node 20+, pnpm. No Docker needed.
 
 ```bash
 pnpm install
-cp .env.example .env            # then set the model key (below), or COUNTERBILL_INFERENCE=test for a labelled offline run
+cp .env.example .env            # then put your Gemini key in .env (see "Gemini free tier" below)
 pnpm db:start                   # embedded PostgreSQL on :54329 (leave running; or `docker compose up -d postgres`)
 pnpm db:migrate                 # in a second terminal
 pnpm dev                        # web on :3000 + worker supervisor
@@ -57,25 +58,54 @@ pnpm dev                        # web on :3000 + worker supervisor
 
 Open http://localhost:3000 → **Investigate a sample case**. `pnpm demo:check` reports, without calling a model, whether this machine is ready and in which mode.
 
-### Run it with a real model
+### Gemini free tier (the configuration this project was run with)
 
-1. In `.env` set `MOZAIK_MODEL` (default `gpt-5.5`; any model Mozaik 4.2 ships: `gpt-5.x`, `claude-*`, `gemini-*`, `deepseek-*` (no structured output, so not usable here)) and the matching key: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` or `GEMINI_API_KEY`.
-2. Restart `pnpm dev` (the **worker** reads the key at start).
-3. Remove `COUNTERBILL_INFERENCE=test` from `.env`.
+No payment is needed. **Where your key goes (privately):** in the file **`.env` in the project root**, as one line, with an
+upper-case name and no quotes or spaces:
 
-Keys are server-side only: they are never sent to the browser, stored, put in a trace or logged. A run stops after `MAX_MODEL_CALLS_PER_RUN` calls (default 24).
+```
+GEMINI_API_KEY=your-key-here
+```
+
+- Get a key at https://aistudio.google.com/apikey (free tier; do not enable billing).
+- `.env` is git-ignored (see `.gitignore`); never paste the key into any other file, a commit, an issue or a chat. Do not put it in a `NEXT_PUBLIC_*` variable.
+- After editing `.env`, **restart `pnpm dev`**: the worker process reads it at start. If you saved it in lower case (`gemini_api_key=`) it still works: Counterbill maps it to the upper-case name the Gemini SDK reads.
+- Keep `COUNTERBILL_INFERENCE=test` **out** of `.env`; that variable switches to the labelled scripted stand-in.
+
+**Choose a model your free tier actually serves** (access differs per account and per model; do not assume):
+
+```bash
+pnpm gemini:models     # sends each Mozaik-supported Gemini model a one-word request and reports usable / no free quota
+```
+
+For the author's key (31 October 2026): `gemini-3.5-flash-lite` usable (≈1 s, **the default**), `gemini-3.5-flash` usable (≈4–15 s),
+`gemini-3.8-flash` slow and intermittently HTTP 503, `gemini-3.1-pro-preview` **no free-tier quota** (HTTP 429, retry in ~21 h).
+Mozaik 4.2.0 supports exactly those four Gemini models; set the one you choose as `MOZAIK_MODEL`.
+
+**Free-tier limits.** Counterbill paces model calls (`MODEL_REQUESTS_PER_MINUTE`, default 10; the agent loops still run
+concurrently, only calls beyond the window wait their turn). On HTTP 429 or 5xx it retries a bounded number of times
+(`MODEL_MAX_RETRIES`, default 3), waiting the delay the provider asks for, never longer than `MODEL_MAX_WAIT_SECONDS` (75). A
+longer retry delay, such as a daily quota, is reported immediately as *"quota exhausted … will not switch models for you"* and
+the run stops with its partial results. The Activity tab shows each wait. There is no fallback to another model, a paid
+model or fake output. Run `pnpm live:check volume-dispute-aug-2026 survey rate-sheet` (with `pnpm dev` running) to reproduce
+the recorded investigation against your own key.
+
+Other providers supported by Mozaik work with the same code (`OPENAI_API_KEY` / `ANTHROPIC_API_KEY` plus the matching
+`MOZAIK_MODEL`), but only Gemini has been run for real here. Keys are server-side only: never sent to the browser, stored, put in a trace or logged.
 
 ### Environment
 
 | Variable | Purpose |
 |---|---|
 | `DATABASE_URL` | PostgreSQL 15+. Default points at the embedded dev database. |
-| `MOZAIK_MODEL` | Model name. Default `gpt-5.5`. Optional `MOZAIK_REASONING_EFFORT` is passed through if set. |
-| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` | Credential for the model's provider. |
-| `COUNTERBILL_INFERENCE=test` | Explicit, labelled deterministic mode for CI and offline checks. |
+| `GEMINI_API_KEY` | Your Gemini free-tier key (the credential variable Mozaik's Gemini adapter reads). |
+| `MOZAIK_MODEL` | Default `gemini-3.5-flash-lite`. Must be one of the four Gemini models Mozaik 4.2.0 supports and that your tier serves (`pnpm gemini:models`). `MOZAIK_REASONING_EFFORT` (default `low` for Gemini). |
+| `MODEL_REQUESTS_PER_MINUTE`, `MODEL_MAX_RETRIES`, `MODEL_MAX_WAIT_SECONDS`, `MAX_TASK_ATTEMPTS` | Free-tier pacing and bounded retries (defaults 10 / 3 / 75 / 3). |
+| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | Only if you switch `MOZAIK_MODEL` to another provider's model. |
+| `COUNTERBILL_INFERENCE=test` | Explicit, labelled deterministic mode for CI and offline checks. Leave unset for real runs. |
 | `PUBLIC_APP_URL`, `SESSION_SECRET` | Public origin and cookie secret (set a long random secret in production). |
 | `MAX_CASE_DOCUMENTS`, `MAX_FILE_MB`, `MAX_CASE_MB` | Upload limits (defaults 10 / 15 / 50). |
-| `MAX_AGENT_REVISIONS`, `MAX_MODEL_CALLS_PER_RUN`, `AGENT_TASK_TIMEOUT_MS` | Per-run bounds on agent passes, model calls and a single call. |
+| `MAX_AGENT_REVISIONS`, `MAX_MODEL_CALLS_PER_RUN`, `AGENT_TASK_TIMEOUT_MS` | Per-run bounds on agent passes (default 4), model calls (40) and a single task (300 s). |
 | `MAX_CONCURRENT_RUNS`, `DEMO_RUNS_PER_IP_PER_HOUR` | Worker concurrency; sample-run rate limit (bounds model spend on a public deployment). |
 
 ## Reproduce the key moment
@@ -196,10 +226,12 @@ Run on 31 October 2026 on the development machine (Windows 11, Node 24, PostgreS
 | `pnpm typecheck && pnpm lint` | TypeScript 6, ESLint (Next + TS) | n/a |
 | `pnpm test` | Decimal/CBM arithmetic, units, rounding, minimums, currency mismatch, citation validation, prose gates, letter merge, uploads, schemas | n/a |
 | `pnpm test:integration` | Real worker processes + real Mozaik runtime + PostgreSQL: concurrency, survey → revision → letter, duplicate delivery, targeted wake-ups, contract minimum, correction provenance, malformed/invalid-citation output, injection, failure/partial/retry, stale results, cancellation, crashed worker, missing credentials, PDF content, live provider path | **Test mode** or **fake provider** |
+| `RUN_LIVE_GEMINI=1 pnpm exec vitest run tests/integration/live-gemini.test.ts` | Opt-in, real Gemini API: a model with no free quota fails fast with a clear error, bounded calls, no fallback | **Real Gemini** (free tier) |
+| `pnpm live:check <sample> [steps]` | Not a test: runs a sample through the running app against your real key and saves the trace (how `docs/LIVE_RESULTS.md` was produced) | **Real Gemini** (free tier) |
 | `pnpm test:e2e` | Browser: sample journey → PDF, private case upload/correct/export, second account isolation, SSE interruption, refresh, offline source site, 6 viewport widths, keyboard, themes, reduced motion | **Test mode** |
 
 Integration and e2e tests need `pnpm db:start` running (they use the `counterbill_test` database).
-`pnpm demo:check` checks readiness without calling a model.
+`pnpm demo:check` checks readiness without calling a model; `pnpm gemini:models` makes one-word requests to find which Gemini models your free tier serves.
 
 ## Evidence provenance
 
@@ -207,7 +239,9 @@ Every fact stores its document, page/span, extraction method, provenance (`extra
 
 ## Known limitations
 
-- **No live-model run has been performed** (see Status); prompt quality and real extraction accuracy on real documents are unmeasured. The PRD's accuracy benchmark (facts correct out of a hand-checked denominator) was **not** produced and no accuracy figure is claimed.
+- **Real-model evidence is thin**: a handful of runs of one small free-tier model (`gemini-3.5-flash-lite`) on two reconstructed samples (see [`docs/LIVE_RESULTS.md`](docs/LIVE_RESULTS.md)). Real extraction accuracy on real customer documents is unmeasured; the PRD's accuracy benchmark (facts correct out of a hand-checked denominator) was **not** produced and no accuracy figure is claimed. On that model, answers were sometimes rejected by the validation gates and retried (the counts are recorded); a busier or weaker model can end a run with failed agents and "needs input".
+- **No tool calling on Gemini**: Mozaik 4.2.0's Gemini adapter drops the `thoughtSignature` that Gemini 3 requires on function calls, so the tools are not offered to Gemini models (all arithmetic is deterministic server code regardless).
+- **Free-tier limits are real**: a 429 was hit and handled live (bounded retry with the provider's own delay), but a daily quota ends a run with partial results and a clear message; there is deliberately no fallback to another or paid model. The pacing window is a fixed minute shared by all runs of the key, so a burst across a window boundary can still draw a 429.
 - No OCR: images and scanned PDFs need figures typed in (recorded as user statements).
 - Document storage is PostgreSQL `bytea` (fine for ≤15 MB files); no Supabase/S3 driver, no row-level security (isolation is enforced and tested in the API layer).
 - Agent outputs depend on the model following the schemas; the validation gates reject bad output but cannot make a weak model good. A bad model produces failed agents and "needs input", not silent errors.
@@ -222,7 +256,7 @@ You need: **PostgreSQL**, a place to run **two long-lived processes** (web and w
 
 ### Manual steps still required
 
-1. Provide a model key and do the first real-model run (`pnpm demo:check`, then run both samples; read `docs/DECISIONS.md` if anything needs tuning).
+1. Your key is already in `.env` for local runs. For any other machine or host, set `GEMINI_API_KEY` (and `MOZAIK_MODEL`, checked with `pnpm gemini:models`) in that host's private environment settings, never in git. Free-tier access differs per account.
 2. Create the hosting resources (database, one container) and deploy; then exercise: sample run, upload persistence across a restart, SSE through the proxy.
 3. Publish the repository and submit (this was deliberately not done on your behalf).
 
