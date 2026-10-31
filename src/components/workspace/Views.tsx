@@ -116,7 +116,7 @@ export function EvidenceView() {
                             <SourceChip key={s} refId={s} onOpen={actions.openSource} />
                           ))}
                         </td>
-                        <td data-label="Status">{f.status === 'superseded' ? <StatusChip status="superseded" label="Superseded by correction" /> : f.provenance === 'user_correction' ? <StatusChip status="provisional" label="User-corrected" /> : <span className="muted">{f.confidence ?? 'extracted'}</span>}</td>
+                        <td data-label="Status">{f.status === 'superseded' ? <StatusChip status="superseded" label={f.notes?.startsWith('Document replaced') ? 'Superseded: document replaced' : 'Superseded by correction'} /> : f.provenance === 'user_correction' ? <StatusChip status="provisional" label="User-corrected" /> : <span className="muted">{f.confidence ?? 'extracted'}</span>}</td>
                         <td data-label="">
                           {f.status === 'active' && !isDemo ? (
                             <button type="button" className="btn btn-sm" onClick={() => actions.openCorrect(f.ref)}>
