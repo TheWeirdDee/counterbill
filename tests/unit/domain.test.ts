@@ -202,3 +202,15 @@ describe('citations', () => {
     expect(quoteAppearsIn('refund approved', text)).toBe(false);
   });
 });
+
+describe('question de-duplication', async () => {
+  const { similarQuestions } = await import('@/domain/case-rules');
+  it('treats re-worded versions of the same question as one', () => {
+    expect(similarQuestions('Which contract clause or rate sheet supports the billed volume of 1.10 CBM?', 'Which specific contract clause or rate sheet applies to this shipment to support the billed volume of 1.10 CBM?')).toBe(true);
+    expect(similarQuestions('Please clarify: Discrepancy between the billed volume (1.10 CBM) and the declared volume (0.55 CBM).', 'Please clarify the discrepancy between the billed volume (1.10 CBM) and the shipper\'s estimated declared volume (0.55 CBM).')).toBe(true);
+  });
+  it('keeps genuinely different questions apart', () => {
+    expect(similarQuestions('Which contract clause or rate sheet supports the billed volume?', 'Do you have a cargo survey or warehouse measurement report?')).toBe(false);
+    expect(similarQuestions('Who approved the change of shipment mode from FCL to LCL?', 'Which bill of lading shows the final shipment mode?')).toBe(false);
+  });
+});
