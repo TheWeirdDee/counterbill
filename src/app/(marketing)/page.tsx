@@ -124,33 +124,33 @@ export default function Home() {
             </p>
           </div>
 
-          <figure className="recon" data-intro="" aria-label="Illustrative workflow: records compared, a sourced finding, and the resulting complaint">
-            <figcaption className="recon-head">
+          <figure className="recon" aria-label="Illustrative workflow: records compared, a sourced finding, and the resulting complaint">
+            <figcaption className="recon-head" data-seq>
               <b>Illustrative workflow</b>
               <span>Figures from a published example</span>
             </figcaption>
-            <div className="recon-row">
+            <div className="recon-row" data-seq>
               <span>
                 Invoice, billed volume
                 <span className="src">Freight invoice · reconstructed</span>
               </span>
               <span className="num">1.10 CBM</span>
             </div>
-            <div className="recon-row">
+            <div className="recon-row" data-seq>
               <span>
                 Survey, measured volume
                 <span className="src">Joint survey · published report</span>
               </span>
               <span className="num">0.75 CBM</span>
             </div>
-            <div className="recon-row diff">
+            <div className="recon-row diff" data-seq>
               <span>
                 Difference under review
                 <span className="src">(1.10 − 0.75) × ₦542,000</span>
               </span>
               <span className="num">₦189,700</span>
             </div>
-            <div className="recon-finding">
+            <div className="recon-finding" data-seq>
               <span className="chip chip-warn">Unresolved</span>
               <p>Billed volume is above the measured volume. The rating basis for 1.10 CBM is not shown in any document.</p>
               <span className="src-row">
@@ -158,7 +158,7 @@ export default function Home() {
                 <span className="source-chip static">Survey</span>
               </span>
             </div>
-            <div className="recon-letter">
+            <div className="recon-letter" data-seq>
               <span className="eyebrow">Draft complaint</span>
               <p>“Please provide the calculation and the contract terms used to arrive at 1.10 CBM.”</p>
             </div>
@@ -174,36 +174,25 @@ export default function Home() {
             <h2 id="problem-h">One charge. Several conflicting records.</h2>
             <p>The invoice says one thing. The quote or the packing list says another. A survey may say a third. What you need is the size of the difference and the right questions to ask the carrier about it.</p>
           </div>
-          <div className="conflict" data-reveal>
+          <div className="conflicts" data-reveal>
             <div>
-              <div className="label">Invoice</div>
-              <div className="figure">
-                1.10 <small>CBM</small>
-              </div>
-              <p>Volume the carrier billed.</p>
+              <h3>Billed more than declared</h3>
+              <p>The invoice charges for more volume than your packing list says you shipped.</p>
+              <span className="pair">Invoice <i aria-hidden="true">≠</i> Packing list</span>
             </div>
             <div>
-              <div className="label">Packing list</div>
-              <div className="figure">
-                0.55 <small>CBM</small>
-              </div>
-              <p>An estimate by the shipper.</p>
+              <h3>Booked as one thing, billed as another</h3>
+              <p>A full container was agreed; the cargo was handled and charged as shared (LCL).</p>
+              <span className="pair">Booking <i aria-hidden="true">≠</i> Invoice</span>
             </div>
             <div>
-              <div className="label">Survey</div>
-              <div className="figure">
-                0.75 <small>CBM</small>
-              </div>
-              <p>Measured by the parties.</p>
-            </div>
-            <div className="hot">
-              <div className="label">Contract basis</div>
-              <div className="figure">Not shown</div>
-              <p>No document explains how 1.10 was rated.</p>
+              <h3>Quoted one rate, charged another</h3>
+              <p>The rate sheet or quote and the invoice do not use the same rate, minimum or rounding.</p>
+              <span className="pair">Quote <i aria-hidden="true">≠</i> Invoice</span>
             </div>
           </div>
-          <p className="muted" style={{ marginTop: 14, fontSize: 13.5 }}>
-            From the published example. The invoice and packing list are reconstructed.
+          <p className="muted" style={{ marginTop: 'var(--space-group)', fontSize: 14.5, maxWidth: '62ch' }}>
+            For each, Counterbill lines the records up, recalculates the difference, and shows what none of them prove.
           </p>
         </div>
       </section>
@@ -239,7 +228,7 @@ export default function Home() {
       <section className="band" id="evidence" aria-labelledby="evidence-h">
         <div className="container">
           <div className="band-head" data-reveal>
-            <p className="eyebrow accent">The principal feature</p>
+            <p className="eyebrow accent">When something new turns up</p>
             <h2 id="evidence-h">Evidence changes the conclusion</h2>
             <p>A freight case is rarely settled by one document. When a new one arrives, Counterbill recalculates, keeps what it used to think, and says why the answer moved. Step through the published example.</p>
           </div>
@@ -254,34 +243,53 @@ export default function Home() {
         <div className="container">
           <div className="band-head" data-reveal>
             <p className="eyebrow">What you leave with</p>
-            <h2 id="out-h">A case you can put in front of someone.</h2>
+            <h2 id="out-h">A complaint you can edit and send, with the case behind it.</h2>
+            <p>Counterbill never sends anything: you review the wording, change what you like, and send it yourself. It is not legal advice and does not decide who is right.</p>
           </div>
-          <div className="outputs" data-reveal>
-            <div className="card">
-              <svg className="glyph" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 6h16M4 12h16M4 18h10" />
-              </svg>
-              <h3>A comparison with calculations</h3>
-              <p>Billed, declared, measured and chargeable volume side by side, with every formula shown. Arithmetic is done by code, never by the model.</p>
-            </div>
-            <div className="card">
-              <svg className="glyph" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M9 12l2 2 4-4M7 3h7l5 5v13H7z" />
-              </svg>
-              <h3>Findings linked to their sources</h3>
-              <p>Each finding carries a status and the exact passages behind it. A citation that does not exist in your documents is rejected.</p>
-            </div>
-            <div className="card">
-              <svg className="glyph" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M12 17h.01M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" />
-              </svg>
-              <h3>Questions about missing evidence</h3>
-              <p>What the documents do not show, and what to ask for, so you know whether to chase a rate sheet, a survey or an email.</p>
-            </div>
+          <div className="deliverable">
+            <figure className="letter-preview" data-reveal aria-label="Illustrative complaint structure">
+              <figcaption className="eyebrow">Illustrative structure · editable draft</figcaption>
+              <div className="lp-row" data-stagger>
+                <b>To</b>
+                <span>The freight company</span>
+              </div>
+              <div className="lp-row" data-stagger>
+                <b>Subject</b>
+                <span>Request for the calculation behind invoice charges</span>
+              </div>
+              <div className="lp-block" data-stagger>
+                <b>What we compared</b>
+                <span>Your invoice, the packing list and the survey, with the figures side by side and the calculation shown.</span>
+              </div>
+              <div className="lp-block" data-stagger>
+                <b>What we ask</b>
+                <span>The rating basis, any minimum or rounding rule that applies, and the document it comes from.</span>
+              </div>
+              <div className="lp-block" data-stagger>
+                <b>Annex</b>
+                <span>Evidence summary listing each fact with the document and passage it came from.</span>
+              </div>
+              <div className="lp-actions">
+                <span className="lp-chip">PDF letter</span>
+                <span className="lp-chip">PDF evidence summary</span>
+                <span className="lp-chip">CSV</span>
+              </div>
+            </figure>
+            <ul className="deliverable-list" data-reveal>
+              <li>
+                <h3>A comparison with calculations</h3>
+                <p>Billed, declared, measured and chargeable volume side by side, with each formula shown.</p>
+              </li>
+              <li>
+                <h3>Findings linked to their sources</h3>
+                <p>Every finding carries a status and the passages behind it, so you can open the page it came from.</p>
+              </li>
+              <li>
+                <h3>Questions about missing evidence</h3>
+                <p>What the documents do not show, and what to ask for next.</p>
+              </li>
+            </ul>
           </div>
-          <p className="outputs-note" data-reveal>
-            <b>An editable complaint and an evidence summary,</b> downloadable as PDF. Your edits are marked as yours. The wording asks for explanation; it does not threaten, allege fraud, or claim you are owed a refund. Counterbill is not legal advice and does not decide who is right.
-          </p>
         </div>
       </section>
 
@@ -302,7 +310,7 @@ export default function Home() {
                 {EXAMPLE.title}
               </h3>
               <p>
-                {EXAMPLE.source.publisher}, {EXAMPLE.source.published}. Six packages from China to Lagos were billed at 1.10 CBM; a survey measured 0.75 CBM; the regulator found the rating basis was never established.
+                {EXAMPLE.source.publisher}, {EXAMPLE.source.published}. A volume charge, a packing list, a survey and a regulator’s finding that the rating basis was never established.
               </p>
               <div className="cta-row" style={{ marginTop: 18 }}>
                 <Link href={EXAMPLE_HREF} className="btn btn-primary">
