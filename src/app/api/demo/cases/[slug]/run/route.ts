@@ -31,5 +31,5 @@ export const POST = route(async (req: Request, { params }: Ctx) => {
   if (!r.ready) throw new ApiError(503, r.code, r.message, true);
   const c = await createDemoCaseInstance(slug, sha(token));
   const { run } = await startInvestigation(c.id);
-  return NextResponse.json({ caseId: c.id, runId: run.id, url: `/demo/${slug}/${c.id}` }, { status: 202 });
+  return NextResponse.json({ caseId: c.id, runId: run.id, url: `/examples/${slug}/${c.id}` }, { status: 202 });
 });
