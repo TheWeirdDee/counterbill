@@ -141,7 +141,7 @@ export interface Snapshot {
 }
 
 export async function loadSnapshot(caseId: string): Promise<Snapshot> {
-  const [c, documents, spans, facts, calcs, findings] = await Promise.all([
+  const [c, allDocuments, allSpans, facts, calcs, findings] = await Promise.all([
     getCase(caseId),
     listDocuments(caseId),
     listSpans(caseId),
@@ -149,6 +149,10 @@ export async function loadSnapshot(caseId: string): Promise<Snapshot> {
     listCalculations(caseId),
     listFindings(caseId),
   ]);
+  // A replaced document is out of the evidence: no agent sees it or its text, so it cannot compete with its replacement.
+  const documents = allDocuments.filter((d) => !d.supersededByRef);
+  const live = new Set(documents.map((d) => d.ref));
+  const spans = allSpans.filter((s) => live.has(s.documentRef));
   const header = [
     `Case: ${c?.name}`,
     `Claimant: ${c?.claimant || 'unknown'}; other party: ${c?.counterparty || 'unknown'}`,
