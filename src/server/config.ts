@@ -101,12 +101,24 @@ export function requiredProviderKey(model: string): { env: string; provider: str
 
 export type InferenceReadiness =
   | { ready: true; mode: 'live' | 'test'; model: string }
-  | { ready: false; code: 'missing_api_key' | 'unsupported_model'; message: string; model: string };
+  | { ready: false; code: 'missing_api_key' | 'unsupported_model' | 'test_mode_blocked'; message: string; model: string };
 
 /** Whether an investigation can run right now. Never silently falls back to test mode or to a different model. */
 export function inferenceReadiness(): InferenceReadiness {
   const model = config.model;
-  if (config.inferenceMode === 'test') return { ready: true, mode: 'test', model: 'counterbill-test-runner' };
+  if (config.inferenceMode === 'test') {
+    // The scripted stand-in is for tests. A production build refuses it unless that is allowed on purpose, so a stray
+    // variable on a deployed server can never turn the product into canned output.
+    if (process.env.NODE_ENV === 'production' && process.env.COUNTERBILL_ALLOW_TEST_IN_PRODUCTION !== '1') {
+      return {
+        ready: false,
+        code: 'test_mode_blocked',
+        model: 'counterbill-test-runner',
+        message: 'COUNTERBILL_INFERENCE=test is set on a production build. Test mode is refused there unless COUNTERBILL_ALLOW_TEST_IN_PRODUCTION=1 is also set. Unset COUNTERBILL_INFERENCE to use the configured model.',
+      };
+    }
+    return { ready: true, mode: 'test', model: 'counterbill-test-runner' };
+  }
   const all = Object.values(MOZAIK_MODELS).flat() as string[];
   const need = requiredProviderKey(model);
   if (!need || !all.includes(model)) {
