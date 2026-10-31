@@ -33,7 +33,7 @@ export function EvidenceNavigator() {
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
           {docs.map((d) => (
             <li key={d.ref}>
-              <button type="button" onClick={() => actions.openSource(d.ref)} className="btn" style={{ width: '100%', justifyContent: 'flex-start', textAlign: 'left', display: 'block', height: 'auto', padding: '8px 10px' }} aria-label={`Open ${d.originalFilename}`}>
+              <button type="button" onClick={() => actions.openSource(d.ref)} className="btn" style={{ width: '100%', justifyContent: 'flex-start', textAlign: 'left', display: 'block', height: 'auto', padding: '8px 10px' }}>
                 <span style={{ display: 'block', fontWeight: 700, overflowWrap: 'anywhere' }}>
                   <span className="mono muted">{d.ref}</span> {d.originalFilename}
                 </span>
@@ -81,7 +81,7 @@ export function ActivityRail() {
         </h2>
         <span className="chip chip-plain" role="status" aria-live="off">
           <span className={`pulse${connection === 'live' ? ' live' : ''}`} aria-hidden="true" style={{ marginRight: 4, background: connection === 'live' ? 'var(--good)' : 'var(--warn)' }} />
-          {connection === 'live' ? 'Live' : connection === 'connecting' ? 'Connecting' : 'Reconnecting…'}
+          {connection === 'live' ? 'Connected' : connection === 'connecting' ? 'Connecting' : 'Reconnecting…'}
         </span>
       </div>
       {connection === 'reconnecting' ? (
@@ -436,7 +436,7 @@ function DemoSteps() {
   }
   return (
     <section className="card" aria-labelledby="demo-h" style={{ borderColor: 'var(--accent)' }}>
-      <p className="eyebrow">Sample case</p>
+      <p className="eyebrow">Example case</p>
       <h2 id="demo-h" style={{ fontSize: '1.05rem' }}>
         {state.case.sampleLabel}
       </h2>
