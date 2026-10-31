@@ -97,6 +97,8 @@ export function describeEvent(e: StreamEvent): string {
       return String(p.summary ?? 'Finished.');
     case 'agent.failed':
       return `Failed (${String(p.code)}): ${String(p.message)}`;
+    case 'agent.rate_limited':
+      return `The model provider asked for a pause (${String(p.code).replace(/_/g, ' ')}); retrying in ${String(p.waitSeconds)} s (retry ${String(p.attempt)}).`;
     case 'agent.result_discarded':
       return `A result for evidence revision ${String(p.taskRevision)} was discarded because the case is now at ${String(p.currentRevision)}.`;
     case 'run.completed':
