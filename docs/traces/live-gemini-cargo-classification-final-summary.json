@@ -1,0 +1,29 @@
+{
+  "slug": "cargo-classification-jun-2026",
+  "caseId": "a9f78df3-835e-45d9-8a26-41bfe50927d4",
+  "stages": [
+    {
+      "label": "first",
+      "run": {
+        "kind": "start",
+        "status": "completed",
+        "calls": 8,
+        "error": null
+      },
+      "assessment": {
+        "v": 1,
+        "cls": "conflicting_evidence_needs_input",
+        "headline": "A dispute involves an FCL-to-LCL cargo conversion, but contractual terms and billed volume are unresolved.",
+        "reason": null
+      },
+      "diffs": {},
+      "facts": 5,
+      "findings": 3,
+      "superseded": 2,
+      "draft": {
+        "v": 1
+      },
+      "agentsFailed": []
+    }
+  ]
+}
