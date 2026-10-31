@@ -2,15 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
+import { BrandMark } from './BrandMark';
 
 export function Wordmark({ href = '/' }: { href?: string }) {
   return (
     <Link href={href} className="wordmark" aria-label="Counterbill home">
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <rect width="64" height="64" rx="14" fill="#1b5c88" />
-        <path d="M40 22.5c-2.2-2.6-5.4-4-9-4-7.2 0-12.5 5.4-12.5 12.5S23.8 43.5 31 43.5c3.6 0 6.8-1.4 9-4" fill="none" stroke="#fff" strokeWidth="5.5" strokeLinecap="round" />
-        <path d="M14 51.5h36" stroke="#f3c969" strokeWidth="3.5" strokeLinecap="round" />
-      </svg>
+      <BrandMark />
       Counterbill
     </Link>
   );
@@ -26,8 +23,36 @@ export function HamburgerButton({ open, onClick, controls }: { open: boolean; on
   );
 }
 
-export function ThemeToggle() {
-  const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system');
+type ThemeChoice = 'system' | 'light' | 'dark';
+
+function applyTheme(t: ThemeChoice) {
+  try {
+    if (t === 'system') {
+      localStorage.removeItem('cb-theme');
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      localStorage.setItem('cb-theme', t);
+      document.documentElement.setAttribute('data-theme', t);
+    }
+  } catch {
+    /* storage unavailable: applies for this page view only */
+    if (t !== 'system') document.documentElement.setAttribute('data-theme', t);
+  }
+}
+
+const THEME_ICON: Record<ThemeChoice, React.ReactNode> = {
+  light: <path d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-5.66 1.41-1.41M4.93 19.07l1.41-1.41m0-11.32L4.93 4.93m14.14 14.14-1.41-1.41M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z" />,
+  dark: <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z" />,
+  system: <path d="M3 5h18v11H3zM8 20h8M12 16v4" />,
+};
+
+/** Compact Light / Dark / System menu. Keyboard: Enter or arrows open it, arrows move, Esc closes and restores focus. */
+export function ThemeMenu({ placement = 'down', showLabel = false }: { placement?: 'down' | 'up'; showLabel?: boolean }) {
+  const [theme, setTheme] = useState<ThemeChoice>('system');
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
   useEffect(() => {
     try {
       const t = localStorage.getItem('cb-theme');
@@ -36,28 +61,80 @@ export function ThemeToggle() {
       /* storage unavailable */
     }
   }, []);
-  const apply = (t: 'system' | 'light' | 'dark') => {
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (root.current && !root.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    root.current?.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [open]);
+
+  function choose(t: ThemeChoice) {
     setTheme(t);
-    try {
-      if (t === 'system') {
-        localStorage.removeItem('cb-theme');
-        document.documentElement.removeAttribute('data-theme');
-      } else {
-        localStorage.setItem('cb-theme', t);
-        document.documentElement.setAttribute('data-theme', t);
-      }
-    } catch {
-      /* storage unavailable: applies for this page view only */
-      if (t !== 'system') document.documentElement.setAttribute('data-theme', t);
+    applyTheme(t);
+    setOpen(false);
+    button.current?.focus();
+  }
+  function onMenuKey(e: React.KeyboardEvent) {
+    const items = Array.from(root.current?.querySelectorAll<HTMLElement>('[role="menuitemradio"]') ?? []);
+    const i = items.indexOf(document.activeElement as HTMLElement);
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setOpen(false);
+      button.current?.focus();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items[(i + 1) % items.length]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items[(i - 1 + items.length) % items.length]?.focus();
+    } else if (e.key === 'Tab') {
+      setOpen(false);
     }
-  };
+  }
+  const label = { system: 'System', light: 'Light', dark: 'Dark' } as const;
   return (
-    <div className="theme-toggle" role="group" aria-label="Colour theme">
-      {(['system', 'light', 'dark'] as const).map((t) => (
-        <button key={t} type="button" aria-pressed={theme === t} onClick={() => apply(t)}>
-          {t[0].toUpperCase() + t.slice(1)}
-        </button>
-      ))}
+    <div className="theme-menu" ref={root}>
+      <button
+        ref={button}
+        type="button"
+        className={`btn ${showLabel ? '' : 'btn-icon'}`}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={open ? menuId : undefined}
+        aria-label={`Colour theme: ${label[theme]}`}
+        onClick={() => setOpen((o) => !o)}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          {THEME_ICON[theme]}
+        </svg>
+        <span className={showLabel ? undefined : 'theme-lbl'}>Theme: {label[theme]}</span>
+      </button>
+      {open ? (
+        <div id={menuId} role="menu" aria-label="Colour theme" className={`popover ${placement}`} onKeyDown={onMenuKey}>
+          {(['light', 'dark', 'system'] as const).map((t) => (
+            <button key={t} type="button" role="menuitemradio" aria-checked={theme === t} onClick={() => choose(t)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                {THEME_ICON[t]}
+              </svg>
+              {label[t]}
+              {theme === t ? (
+                <svg className="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="m5 12 5 5 9-10" />
+                </svg>
+              ) : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
