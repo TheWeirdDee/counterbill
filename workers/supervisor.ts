@@ -11,8 +11,8 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { migrate } from '../src/db/migrate';
 import { closePool, one, query } from '../src/db/pool';
-import { appendEvent } from '../src/db/repo';
 import { parsePendingDocuments } from '../src/server/documents';
+import { failRun, reapStaleRuns } from '../src/server/runs';
 
 const WORKER_ID = `worker-${process.pid}-${randomUUID().slice(0, 6)}`;
 const MAX_CONCURRENT = Number(process.env.MAX_CONCURRENT_RUNS ?? 3);
@@ -51,23 +51,8 @@ function spawnChild(runId: string, caseId: string) {
   });
 }
 
-async function failRun(runId: string, caseId: string, code: string, message: string) {
-  const r = await one<{ evidence_revision: number }>(
-    `update investigation_runs set status = 'failed', finished_at = now(), error_code = $2, error_message = $3, lease_expires_at = null
-     where id = $1 and status = 'running' returning evidence_revision`,
-    [runId, code, message],
-  );
-  if (!r) return;
-  await query("update cases set status = 'failed', updated_at = now() where id = $1", [caseId]);
-  await appendEvent({ caseId, runId, type: 'run.failed', producer: 'system', payload: { code, message }, evidenceRevision: r.evidence_revision, idempotencyKey: `${runId}:run.failed:${code}` });
-}
-
 async function reap() {
-  const stale = await query<{ id: string; case_id: string }>("select id, case_id from investigation_runs where status = 'running' and lease_expires_at < now()");
-  for (const s of stale) {
-    children.get(s.id)?.kill();
-    await failRun(s.id, s.case_id, 'worker_lost', 'The worker stopped responding. Partial results were kept; you can retry.');
-  }
+  await reapStaleRuns((id) => children.get(id)?.kill());
 }
 
 async function tick() {
