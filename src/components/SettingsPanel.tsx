@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { api, ThemeToggle, type ApiFail } from './ui';
+import { api, ThemeMenu, type ApiFail } from './ui';
 
 export function SettingsPanel() {
   const router = useRouter();
@@ -78,7 +78,7 @@ export function SettingsPanel() {
 
       <div className="card">
         <h2>Appearance</h2>
-        <ThemeToggle />
+        <ThemeMenu showLabel />
       </div>
 
       <div className="card">
