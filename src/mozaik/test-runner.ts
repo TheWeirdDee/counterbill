@@ -367,6 +367,7 @@ function caseAssessment(msg: string) {
     changeReason: prev ? `New evidence changed the reading from "${CLASS_LABEL[prev[2]] ?? prev[2]}" to "${CLASS_LABEL[cls]}" (see ${calcRefs.slice(0, 4).join(', ') || 'the updated facts'}).` : null,
     findings,
     findingOps: ops,
+    resolvedQuestionRefs: [],
     questions: [
       ...(hasTerms ? [] : [{ audience: 'user', prompt: 'Do you have the quote or rate sheet that shows how chargeable volume is calculated?', reason: 'No document states the rating basis.' }]),
       { audience: 'carrier', prompt: 'Which contract clause or rate sheet supports the chargeable volume shown on the invoice?', reason: 'The basis for the billed volume is not documented.' },
