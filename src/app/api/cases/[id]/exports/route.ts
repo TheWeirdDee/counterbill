@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { query } from '@/db/pool';
-import { camel } from '@/db/repo';
+import { activeOrQueuedRun, camel } from '@/db/repo';
 import { buildExports, storeExports } from '@/exports/build';
 import { requireCase } from '@/server/access';
 import { assertSameOrigin, rateLimit } from '@/server/auth';
@@ -27,6 +27,8 @@ export const POST = route(async (req: Request, { params }: Ctx) => {
   const a = await requireCase(id);
   await rateLimit(`export:${a.user?.id ?? id}`, 40, 3600);
   const body = await readJson(req, z.object({ reviewed: z.literal(true) }).catch(() => { throw new ApiError(422, 'review_required', 'Confirm that you have reviewed the facts before downloading.'); }));
+  // Never export a letter that is about to change: wait for the investigation (and the letter revision) to finish.
+  if (await activeOrQueuedRun(id)) throw new ApiError(409, 'run_in_progress', 'The investigation is still updating the case. Download once it finishes so the letter reflects the latest evidence.', true);
   const built = await buildExports(id);
   const stored = await storeExports(id, built, body.reviewed);
   return NextResponse.json({ exports: stored, draftVersion: built.draftVersion, evidenceRevision: built.evidenceRevision, privacyNote: 'Source documents can contain names, addresses and payment details. Review who receives this pack before sharing it.' }, { status: 201 });
