@@ -146,6 +146,7 @@ export const EVENT_TYPES = [
   'agent.completed',
   'agent.failed',
   'agent.result_discarded',
+  'agent.rate_limited',
   'run.queued',
   'run.started',
   'run.completed',
@@ -224,8 +225,9 @@ export const EvidenceOutput = z.object({
         value: text(300),
         unit: z.string().max(20).nullable(),
         currency: z.string().max(3).nullable(),
-        spanRefs: refs.min(1),
-        quote: text(500),
+        // May be empty in the model's output; the server drops (and counts) any fact it cannot verify against a real span.
+        spanRefs: refs,
+        quote: z.string().max(500),
         confidence: z.enum(['high', 'medium', 'low']),
         notes: z.string().max(300).nullable(),
       }),
@@ -324,6 +326,8 @@ export const CaseOutput = z.object({
     )
     .max(10),
   questions: z.array(QuestionProposal).max(8),
+  /** Open questions that the evidence now answers (their Q-identifiers). */
+  resolvedQuestionRefs: z.array(ref).max(20),
   nextAction: text(300),
   readiness: z.enum(['needs_input', 'review_ready']),
 });
