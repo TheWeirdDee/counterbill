@@ -9,3 +9,8 @@ node_modules
 test-results
 playwright-report
 .git
+docs
+tests
+COUNTERBILL_PRD.md
+playwright.config.ts
+vitest.config.ts
