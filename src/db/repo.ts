@@ -3,7 +3,7 @@
  * callers (API routes, workers) are responsible for the ownership check that precedes them.
  */
 import { createHash, randomUUID } from 'node:crypto';
-import { contentHash } from '@/domain/case-rules';
+import { contentHash, similarQuestions } from '@/domain/case-rules';
 import type { EvidenceIndex } from '@/domain/citations';
 import { emptyIndex } from '@/domain/citations';
 import { Db, one, pool, query, tx } from './pool';
@@ -607,6 +607,10 @@ export async function addQuestion(
   const dedupe = contentHash({ a: q.audience, p: q.prompt.toLowerCase().replace(/\W+/g, ' ').trim() });
   const existing = await one('select * from questions where case_id = $1 and dedupe_key = $2', [caseId, dedupe], db);
   if (existing) return { question: camel<QuestionRow>(existing), inserted: false };
+  // Models phrase the same question differently each pass: treat a near-duplicate of an OPEN question as the same question.
+  const open = await query('select * from questions where case_id = $1 and audience = $2 and status = $3', [caseId, q.audience, 'open'], db);
+  const near = open.find((o) => similarQuestions(o.prompt as string, q.prompt));
+  if (near) return { question: camel<QuestionRow>(near), inserted: false };
   const ref = await nextRef(db, caseId, 'Q');
   const row = await one(
     `insert into questions(case_id, ref, audience, prompt, reason, dedupe_key, raised_by, run_id, evidence_revision) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *`,
