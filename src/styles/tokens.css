@@ -56,6 +56,10 @@
   --space-8: 64px;
   --space-9: 96px;
 
+  /* section boundary, heading to content, and related items inside a group are three different gaps */
+  --space-section: clamp(44px, 5vw, 72px);
+  --space-head: clamp(24px, 3vw, 36px);
+  --space-group: 16px;
   --header-h: 72px;
   --content-max: 1200px;
   color-scheme: light;
