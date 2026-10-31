@@ -1,0 +1,31 @@
+{
+  "slug": "volume-dispute-aug-2026",
+  "caseId": "c41c39c9-b455-41ed-8ae6-ba9ef0a88224",
+  "stages": [
+    {
+      "label": "first",
+      "run": {
+        "kind": "start",
+        "status": "partial",
+        "calls": 11,
+        "error": "Finished with limitations: billing did not complete."
+      },
+      "assessment": {
+        "v": 2,
+        "cls": "insufficient_evidence",
+        "headline": "Volume Discrepancy Awaiting Contractual Terms",
+        "reason": "Timeline updated with T1 through T6 based on recent evidence review citing D1-p1-s2 and D2-p1-s2, maintaining the insufficient evidence classification."
+      },
+      "diffs": {},
+      "facts": 10,
+      "findings": 1,
+      "superseded": 2,
+      "draft": {
+        "v": 1
+      },
+      "agentsFailed": [
+        "billing: provider_bad_request: The provider rejected the request ({\"error\":{\"code\":400,\"message\":\"Function call is missing a thought_signature in functionCall parts. This is required for tools to work correctly, and missing thought_signature may lead to degraded model performance. Addi)"
+      ]
+    }
+  ]
+}
