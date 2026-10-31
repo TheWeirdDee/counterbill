@@ -12,10 +12,10 @@ import type { PoolClient } from 'pg';
 import type { z } from 'zod';
 import { one, query, tx } from '@/db/pool';
 import { camel, type AgentRunRow } from '@/db/repo';
-import { config } from '@/server/config';
+import { config, isGeminiModel } from '@/server/config';
 import { AGENT_LABEL, type AgentRole } from '@/domain/schemas';
 import { emit } from './events';
-import { BudgetExceeded, type CallHooks } from './instrumented-runner';
+import { BudgetExceeded, ProviderError, type CallHooks } from './instrumented-runner';
 import { providerJsonSchema } from './schema';
 import { resolveParticipant, runLoop, state } from './runtime';
 
@@ -79,6 +79,11 @@ export const runnerHooks: CallHooks = {
       [h.agentRunId, u?.inputTokens ?? null, u?.outputTokens ?? null],
     ).catch(() => {});
   },
+  onRetry(contextId, info) {
+    const h = byContext.get(contextId);
+    if (!h) return;
+    void emit('agent.rate_limited', { role: h.role, attempt: info.attempt, waitSeconds: Math.round(info.waitMs / 1000), code: info.code, reason: info.reason.slice(0, 200) }, { producer: h.role }).catch(() => {});
+  },
   onError(contextId, error) {
     const h = byContext.get(contextId);
     if (h && !h.settled) {
@@ -116,9 +121,9 @@ function classifyError(err: unknown): { code: string; message: string; retryable
   const msg = (e?.message ?? String(err)).slice(0, 400);
   if (err instanceof BudgetExceeded) return { code: 'budget_exceeded', message: msg, retryable: false };
   if (e?.name === 'ValidationFailure') return { code: 'invalid_model_output', message: msg, retryable: true };
+  // The inference wrapper has already made its bounded retries for rate limits and outages, so a provider error here is final.
+  if (err instanceof ProviderError) return { code: err.code, message: err.message, retryable: false };
   if (e?.status === 401 || e?.status === 403) return { code: 'provider_auth', message: 'The model provider rejected the API key.', retryable: false };
-  if (e?.status === 429) return { code: 'provider_rate_limited', message: 'The model provider rate-limited the request.', retryable: true };
-  if (e?.status && e.status >= 500) return { code: 'provider_unavailable', message: 'The model provider is unavailable.', retryable: true };
   if (/timed out/i.test(msg)) return { code: 'agent_timeout', message: msg, retryable: true };
   return { code: 'agent_error', message: msg, retryable: true };
 }
@@ -148,7 +153,8 @@ export async function runAgentTask<T, R>(spec: TaskSpec<T, R>): Promise<TaskOutc
   let feedback: string | null = null;
   let last: { code: string; message: string } = { code: 'agent_error', message: 'unknown' };
   try {
-    for (let attempt = 1; attempt <= 2; attempt++) {
+    const maxAttempts = config.maxTaskAttempts;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const agentRunId = (
         await one<{ id: string }>(
           `insert into agent_runs(run_id, case_id, agent_role, task_label, mozaik_agent_id, status, attempt, trigger_event_id, evidence_revision, model_name)
@@ -178,6 +184,9 @@ export async function runAgentTask<T, R>(spec: TaskSpec<T, R>): Promise<TaskOutc
         await query("update agent_runs set status='completed', finished_at=clock_timestamp(), result_summary=$2 where id=$1", [agentRunId, committed.summary.slice(0, 500)]);
         st.completedTasks++;
         st.lastSummary = committed.summary;
+        // A later successful pass reads the whole case again, so it supersedes an earlier failed one.
+        s.failedRoles.delete(spec.role);
+        st.lastError = null;
         await emit('agent.completed', { role: spec.role, label: spec.label, summary: committed.summary.slice(0, 500), agentRunId }, { producer: spec.role, causationId: spec.triggerEventId });
         if (spec.after) await spec.after(committed.result);
         return { ok: true, result: committed.result };
@@ -191,7 +200,7 @@ export async function runAgentTask<T, R>(spec: TaskSpec<T, R>): Promise<TaskOutc
         const c = classifyError(err);
         last = c;
         await query("update agent_runs set status='failed', finished_at=clock_timestamp(), error=$2 where id=$1", [agentRunId, `${c.code}: ${c.message}`]);
-        if (!c.retryable || attempt === 2 || s.cancelled) break;
+        if (!c.retryable || attempt === maxAttempts || s.cancelled) break;
         if (err instanceof ValidationFailure) feedback = err.problems.join('\n');
         else await new Promise((r) => setTimeout(r, 1500));
       }
@@ -224,12 +233,15 @@ async function callModel<T, R>(spec: TaskSpec<T, R>, agentRunId: string, message
       }
     }, config.agentTaskTimeoutMs);
   });
-  const effort = process.env.MOZAIK_REASONING_EFFORT;
+  const effort = config.reasoningEffort;
   runLoop(agent.getId(), message, {
     model: s.model,
     context,
-    tools: spec.tools ?? [],
-    structuredOutput: { name: spec.schemaName, schema: providerJsonSchema(spec.schema), strict: true },
+    // Mozaik 4.2.0's Gemini adapter drops the `thoughtSignature` that Gemini 3 attaches to function calls, and the provider
+    // then rejects the follow-up turn (HTTP 400, recorded in docs/traces). Tools are optional here (the arithmetic is done by
+    // deterministic server code), so they are simply not offered to Gemini.
+    tools: isGeminiModel(s.model) ? [] : (spec.tools ?? []),
+    structuredOutput: { name: spec.schemaName, schema: providerJsonSchema(spec.schema, isGeminiModel(s.model) ? 'gemini' : 'strict-json-schema'), strict: true },
     ...(effort ? { reasoningEffort: effort } : {}),
   });
   try {
