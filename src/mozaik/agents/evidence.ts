@@ -67,6 +67,10 @@ async function runEvidence(documentRefs: string[], triggerEventId: string, label
         if (!f.spanRefs.length) local.push(`${where}: no span cited`);
         else {
           requireKnownRefs(f.spanRefs, index, where, local);
+          for (const sp of f.spanRefs) {
+            const replacedBy = docs.get(index.spans.get(sp)?.documentRef ?? '')?.supersededByRef;
+            if (replacedBy) local.push(`${where}: ${sp} is in a document that was replaced by ${replacedBy}; cite the replacement`);
+          }
           if (!local.length) requireQuote(f.quote, f.spanRefs, index, where, local);
         }
         let value = f.value.trim();
