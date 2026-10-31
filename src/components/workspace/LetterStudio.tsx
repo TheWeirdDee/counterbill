@@ -304,7 +304,7 @@ export function LetterStudio() {
         <h3 id="exp-h">Review and export</h3>
         {isDemo ? (
           <div className="banner banner-info" style={{ marginBottom: 12 }}>
-            This is a sample. The exported letter and evidence summary state that the invoice and packing list are reconstructed for demonstration.
+            This is an example. The exported letter and evidence summary state that the invoice and packing list are reconstructed for demonstration.
           </div>
         ) : null}
         <label className="row" style={{ alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
@@ -346,7 +346,7 @@ export function LetterStudio() {
         </span>
         {done ? (
           <div className="banner banner-good" role="status" style={{ marginTop: 12 }}>
-            <strong>Your case pack is ready.</strong> Review who receives it before sharing. <Link href={base}>Back to case</Link> · <Link href={isDemo ? '/demo' : '/app/new'}>{isDemo ? 'Other sample cases' : 'New case'}</Link>
+            <strong>Your case pack is ready.</strong> Review who receives it before sharing. <Link href={base}>Back to case</Link> · <Link href={isDemo ? '/examples' : '/app/new'}>{isDemo ? 'Other example cases' : 'New case'}</Link>
           </div>
         ) : null}
         {preview ? (
