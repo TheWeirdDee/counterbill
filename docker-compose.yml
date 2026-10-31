@@ -1,0 +1,29 @@
+# Optional: PostgreSQL for local development (alternative to `pnpm db:start`), and the full app.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: counterbill
+      POSTGRES_PASSWORD: counterbill
+      POSTGRES_DB: counterbill
+    ports:
+      - '54329:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U counterbill']
+      interval: 5s
+      retries: 10
+  app:
+    profiles: ['app']
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://counterbill:counterbill@postgres:5432/counterbill
+    ports:
+      - '3000:3000'
+volumes:
+  pgdata:
