@@ -211,7 +211,7 @@ export function NewCaseWizard() {
             <p style={{ margin: '0 0 8px' }}>
               <strong>Drag files here</strong>, or
             </p>
-            <input ref={inputRef} id="file-input" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.eml,.txt" className="sr-only" onChange={(e) => e.target.files && upload(e.target.files)} />
+            <input ref={inputRef} id="file-input" aria-label="Choose files to upload" tabIndex={-1} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.eml,.txt" className="sr-only" onChange={(e) => e.target.files && upload(e.target.files)} />
             <button type="button" className="btn" onClick={() => inputRef.current?.click()}>
               Browse files
             </button>
@@ -342,7 +342,7 @@ export function NewCaseWizard() {
           </div>
           {error ? (
             <div role="alert" className="banner banner-bad">
-              <strong>{error.code === 'missing_api_key' || error.code === 'unsupported_model' ? 'This server is not set up for live investigations.' : 'Could not start.'}</strong>
+              <strong>{['missing_api_key', 'unsupported_model', 'test_mode_blocked'].includes(error.code) ? 'This server is not set up for live investigations.' : 'Could not start.'}</strong>
               <p style={{ margin: '4px 0 0' }}>{error.message}</p>
             </div>
           ) : null}
