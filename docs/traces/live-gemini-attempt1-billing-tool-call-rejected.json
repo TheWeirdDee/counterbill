@@ -1,0 +1,1616 @@
+{
+  "note": "Observed values from the Mozaik runtime and the Counterbill event log. Prompts, document text and model answers are not included.",
+  "exportedAt": "2026-10-31T09:27:26.853Z",
+  "case": {
+    "id": "c41c39c9-b455-41ed-8ae6-ba9ef0a88224",
+    "name": "Disputed LCL volume charge — China to Lagos (sample)",
+    "evidenceRevision": 3,
+    "sample": "Sample based on a published report — Nigerian Shippers’ Council, 31 August 2026"
+  },
+  "runs": [
+    {
+      "id": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "kind": "start",
+      "status": "partial",
+      "inferenceMode": "live",
+      "model": "gemini-3.5-flash-lite",
+      "evidenceRevision": 3,
+      "queuedAt": "2026-10-31T09:26:17.245Z",
+      "startedAt": "2026-10-31T09:26:17.297Z",
+      "finishedAt": "2026-10-31T09:27:23.910Z",
+      "modelCalls": 11,
+      "errorCode": "agent_failures",
+      "trigger": {
+        "reason": "Investigation started"
+      }
+    }
+  ],
+  "agentRuns": [
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "evidence",
+      "task": "Read all documents",
+      "mozaikAgentId": "1ea2fe58-1db8-45c3-80c6-8051ef3049b0",
+      "mozaikLoopId": "6e4caffd-d3c7-4e8e-9172-71b237b13b84",
+      "attempt": 1,
+      "status": "completed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:19.640Z",
+      "inferenceStartedAt": "2026-10-31T09:26:19.810Z",
+      "inferenceFinishedAt": "2026-10-31T09:26:23.063Z",
+      "finishedAt": "2026-10-31T09:26:23.135Z",
+      "tokens": {
+        "input": 1419,
+        "output": 997
+      },
+      "triggerEventId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "error": null
+    },
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "contract",
+      "task": "Review all documents for chargeable-volume terms.",
+      "mozaikAgentId": "77ce914d-e87d-4f65-8608-d66d55eea18b",
+      "mozaikLoopId": "deb0b3fd-949c-43bd-b613-66b63ecd724f",
+      "attempt": 1,
+      "status": "completed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:19.641Z",
+      "inferenceStartedAt": "2026-10-31T09:26:19.764Z",
+      "inferenceFinishedAt": "2026-10-31T09:26:21.920Z",
+      "finishedAt": "2026-10-31T09:26:21.946Z",
+      "tokens": {
+        "input": 1210,
+        "output": 260
+      },
+      "triggerEventId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "error": null
+    },
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "timeline",
+      "task": "Reconstruct the sequence from all documents.",
+      "mozaikAgentId": "61d18a3f-4bde-428d-ac57-8f1e5e92680e",
+      "mozaikLoopId": "1318f70e-060d-46e5-b45d-28de8b68c803",
+      "attempt": 1,
+      "status": "completed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:19.641Z",
+      "inferenceStartedAt": "2026-10-31T09:26:19.839Z",
+      "inferenceFinishedAt": "2026-10-31T09:26:21.603Z",
+      "finishedAt": "2026-10-31T09:26:21.665Z",
+      "tokens": {
+        "input": 1084,
+        "output": 186
+      },
+      "triggerEventId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "error": null
+    },
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "billing",
+      "task": "Review the billing variables available at the start of the investigation.",
+      "mozaikAgentId": "ccca893a-910d-4fcf-9c33-e515771aadc4",
+      "mozaikLoopId": "2331691f-77c0-41a7-8bce-0f27635fc571",
+      "attempt": 1,
+      "status": "completed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:19.652Z",
+      "inferenceStartedAt": "2026-10-31T09:26:19.785Z",
+      "inferenceFinishedAt": "2026-10-31T09:26:21.592Z",
+      "finishedAt": "2026-10-31T09:26:21.632Z",
+      "tokens": {
+        "input": 950,
+        "output": 113
+      },
+      "triggerEventId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "error": null
+    },
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "timeline",
+      "task": "New dated facts were recorded (carrier_name, package_count, billed_volume_cbm, r",
+      "mozaikAgentId": "61d18a3f-4bde-428d-ac57-8f1e5e92680e",
+      "mozaikLoopId": "cc7c8e01-f8d8-4de8-a5e0-7778ace41a33",
+      "attempt": 1,
+      "status": "completed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:23.143Z",
+      "inferenceStartedAt": "2026-10-31T09:26:23.169Z",
+      "inferenceFinishedAt": "2026-10-31T09:26:24.403Z",
+      "finishedAt": "2026-10-31T09:26:24.437Z",
+      "tokens": {
+        "input": 1167,
+        "output": 228
+      },
+      "triggerEventId": "1a3a495d-387b-41cb-a0d7-b6a3217390fc",
+      "error": null
+    },
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "billing",
+      "task": "New or corrected facts were recorded (carrier_name, package_count, billed_volume",
+      "mozaikAgentId": "ccca893a-910d-4fcf-9c33-e515771aadc4",
+      "mozaikLoopId": "217c66eb-3438-4e51-a70a-a29bff5c09d4",
+      "attempt": 1,
+      "status": "failed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:23.148Z",
+      "inferenceStartedAt": "2026-10-31T09:26:23.174Z",
+      "inferenceFinishedAt": "2026-10-31T09:26:24.202Z",
+      "finishedAt": "2026-10-31T09:26:24.636Z",
+      "tokens": {
+        "input": 1273,
+        "output": 34
+      },
+      "triggerEventId": "1a3a495d-387b-41cb-a0d7-b6a3217390fc",
+      "error": "provider_bad_request: The provider rejected the request ({\"error\":{\"code\":400,\"message\":\"Function call is missing a thought_signature in functionCall parts. This is required for tools to work correctly, and missing thought_signature may lead to degraded model performance. Addi)"
+    },
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "case",
+      "task": "Initial assessment",
+      "mozaikAgentId": "ad9babec-a876-429d-b975-902c844351e3",
+      "mozaikLoopId": "b7b63b22-4824-4557-8bd9-16c657890274",
+      "attempt": 1,
+      "status": "completed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:23.769Z",
+      "inferenceStartedAt": "2026-10-31T09:26:23.793Z",
+      "inferenceFinishedAt": "2026-10-31T09:26:25.866Z",
+      "finishedAt": "2026-10-31T09:26:25.940Z",
+      "tokens": {
+        "input": 1478,
+        "output": 475
+      },
+      "triggerEventId": "e67b89c3-594a-4823-9e1e-3580c75f84b5,3ccf0bd2-f748-4be8-a653-a65a8b80f8a6,eacb04cb-1b9a-4418-a425-3004838418e7,acb2678e-25fd-48c8-a619-ceddd0810fcf",
+      "error": null
+    },
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "drafting",
+      "task": "Draft letter from assessment v1",
+      "mozaikAgentId": "67dfe0b8-b0d9-4b0f-8605-247688c36417",
+      "mozaikLoopId": "e7b6ff7b-5d23-444d-a364-50961da3b052",
+      "attempt": 1,
+      "status": "completed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:25.961Z",
+      "inferenceStartedAt": "2026-10-31T09:26:25.984Z",
+      "inferenceFinishedAt": "2026-10-31T09:26:27.635Z",
+      "finishedAt": "2026-10-31T09:26:27.694Z",
+      "tokens": {
+        "input": 1164,
+        "output": 412
+      },
+      "triggerEventId": "4b73fbb4-33f4-46fc-bc1c-455c7c9937b6",
+      "error": null
+    },
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "case",
+      "task": "Reassess after new evidence",
+      "mozaikAgentId": "ad9babec-a876-429d-b975-902c844351e3",
+      "mozaikLoopId": "d6da2f7d-289d-4ba5-89d9-19886c6eeadf",
+      "attempt": 1,
+      "status": "failed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:26.273Z",
+      "inferenceStartedAt": "2026-10-31T09:26:26.321Z",
+      "inferenceFinishedAt": "2026-10-31T09:26:29.826Z",
+      "finishedAt": "2026-10-31T09:26:29.835Z",
+      "tokens": {
+        "input": 1551,
+        "output": 500
+      },
+      "triggerEventId": "b0040819-aef5-4e52-a27f-d84d2edda64c",
+      "error": "invalid_model_output: This is a reassessment: changeReason must say what changed and why, citing identifiers."
+    },
+    {
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "role": "case",
+      "task": "Reassess after new evidence",
+      "mozaikAgentId": "ad9babec-a876-429d-b975-902c844351e3",
+      "mozaikLoopId": "d118d789-a9d1-4a60-9431-fb0773da368c",
+      "attempt": 2,
+      "status": "completed",
+      "evidenceRevision": 3,
+      "startedAt": "2026-10-31T09:26:29.836Z",
+      "inferenceStartedAt": "2026-10-31T09:27:19.770Z",
+      "inferenceFinishedAt": "2026-10-31T09:27:22.327Z",
+      "finishedAt": "2026-10-31T09:27:22.587Z",
+      "tokens": {
+        "input": 1585,
+        "output": 517
+      },
+      "triggerEventId": "b0040819-aef5-4e52-a27f-d84d2edda64c",
+      "error": null
+    }
+  ],
+  "events": [
+    {
+      "seq": 705,
+      "id": "c927a0d9-cc46-4864-8f81-b0a973917744",
+      "runId": null,
+      "type": "evidence.parsed",
+      "producer": "system",
+      "occurredAt": "2026-10-31T09:26:17.212Z",
+      "causationId": null,
+      "evidenceRevision": 1,
+      "payload": {
+        "pages": 1,
+        "method": "plain-text",
+        "status": "ready",
+        "documentRef": "D1"
+      }
+    },
+    {
+      "seq": 706,
+      "id": "bc7b3ad2-b1aa-42a9-8e90-82e40717ee76",
+      "runId": null,
+      "type": "evidence.parsed",
+      "producer": "system",
+      "occurredAt": "2026-10-31T09:26:17.230Z",
+      "causationId": null,
+      "evidenceRevision": 2,
+      "payload": {
+        "pages": 1,
+        "method": "plain-text",
+        "status": "ready",
+        "documentRef": "D2"
+      }
+    },
+    {
+      "seq": 707,
+      "id": "e7f4950d-b62a-434f-b844-ad1d857934e9",
+      "runId": null,
+      "type": "evidence.parsed",
+      "producer": "system",
+      "occurredAt": "2026-10-31T09:26:17.242Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "pages": 1,
+        "method": "plain-text",
+        "status": "ready",
+        "documentRef": "D3"
+      }
+    },
+    {
+      "seq": 708,
+      "id": "cc781bee-5731-45ef-a0c5-f8bf167cf4d9",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "run.queued",
+      "producer": "system",
+      "occurredAt": "2026-10-31T09:26:17.256Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "kind": "start"
+      }
+    },
+    {
+      "seq": 709,
+      "id": "c3fbbdd8-d44e-49cd-bdd7-fa655150d9ee",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "run.started",
+      "producer": "system",
+      "occurredAt": "2026-10-31T09:26:19.626Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "kind": "start",
+        "model": "gemini-3.5-flash-lite",
+        "agents": [
+          {
+            "role": "evidence",
+            "mozaikAgentId": "1ea2fe58-1db8-45c3-80c6-8051ef3049b0"
+          },
+          {
+            "role": "billing",
+            "mozaikAgentId": "ccca893a-910d-4fcf-9c33-e515771aadc4"
+          },
+          {
+            "role": "contract",
+            "mozaikAgentId": "77ce914d-e87d-4f65-8608-d66d55eea18b"
+          },
+          {
+            "role": "timeline",
+            "mozaikAgentId": "61d18a3f-4bde-428d-ac57-8f1e5e92680e"
+          },
+          {
+            "role": "case",
+            "mozaikAgentId": "ad9babec-a876-429d-b975-902c844351e3"
+          },
+          {
+            "role": "drafting",
+            "mozaikAgentId": "67dfe0b8-b0d9-4b0f-8605-247688c36417"
+          }
+        ],
+        "targeted": [],
+        "inferenceMode": "live"
+      }
+    },
+    {
+      "seq": 710,
+      "id": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "case.started",
+      "producer": "system",
+      "occurredAt": "2026-10-31T09:26:19.638Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "targeted": [],
+        "documentRefs": [
+          "D1",
+          "D2",
+          "D3"
+        ]
+      }
+    },
+    {
+      "seq": 711,
+      "id": "7b84baca-b86b-4021-b5ac-6e7e13ca1026",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "evidence",
+      "occurredAt": "2026-10-31T09:26:19.644Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "evidence",
+        "label": "Read all documents",
+        "attempt": 1,
+        "agentRunId": "438735a9-ccf8-4510-a020-871274f0c45c"
+      }
+    },
+    {
+      "seq": 712,
+      "id": "e0d5ab52-5930-4cbd-b386-576df868cf33",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:19.657Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "timeline",
+        "label": "Reconstruct the sequence from all documents.",
+        "attempt": 1,
+        "agentRunId": "67131e8e-7355-4746-b4cd-8ff0c35ca42a"
+      }
+    },
+    {
+      "seq": 713,
+      "id": "e0bcd66b-741c-4b60-a574-360ff38af34f",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "contract",
+      "occurredAt": "2026-10-31T09:26:19.658Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "contract",
+        "label": "Review all documents for chargeable-volume terms.",
+        "attempt": 1,
+        "agentRunId": "a3709d2a-22b2-4ba7-a8f8-5e547b2c4791"
+      }
+    },
+    {
+      "seq": 714,
+      "id": "9267ea5d-f233-418e-85f6-eec825094467",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:19.670Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "billing",
+        "label": "Review the billing variables available at the start of the investigation.",
+        "attempt": 1,
+        "agentRunId": "9bae8be3-9993-4660-a640-b5956e2078d5"
+      }
+    },
+    {
+      "seq": 715,
+      "id": "dbafd3f8-2e6e-4fac-9bb2-9857bc3cd939",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "contract",
+      "occurredAt": "2026-10-31T09:26:19.760Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 0,
+        "loopId": "deb0b3fd-949c-43bd-b613-66b63ecd724f",
+        "mozaikAt": "2026-10-31T09:26:19.689Z",
+        "structuredOutput": "contract_output"
+      }
+    },
+    {
+      "seq": 716,
+      "id": "9a08835d-c80a-4dad-ad3d-13e207321e5f",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "contract",
+      "occurredAt": "2026-10-31T09:26:19.760Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "deb0b3fd-949c-43bd-b613-66b63ecd724f",
+        "mozaikAt": "2026-10-31T09:26:19.690Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 717,
+      "id": "d1537b9d-19b4-41ea-9aaf-29c5868514b0",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:19.771Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 2,
+        "loopId": "2331691f-77c0-41a7-8bce-0f27635fc571",
+        "mozaikAt": "2026-10-31T09:26:19.764Z",
+        "structuredOutput": "billing_output"
+      }
+    },
+    {
+      "seq": 718,
+      "id": "54109575-4323-4b6e-a518-6829ff1278ba",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:19.772Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "2331691f-77c0-41a7-8bce-0f27635fc571",
+        "mozaikAt": "2026-10-31T09:26:19.764Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 719,
+      "id": "29839e69-f304-42a5-92b7-894054ea71b8",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "evidence",
+      "occurredAt": "2026-10-31T09:26:19.811Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 0,
+        "loopId": "6e4caffd-d3c7-4e8e-9172-71b237b13b84",
+        "mozaikAt": "2026-10-31T09:26:19.807Z",
+        "structuredOutput": "evidence_output"
+      }
+    },
+    {
+      "seq": 720,
+      "id": "9b02cf90-368e-4e36-a2bb-434e52997d47",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "evidence",
+      "occurredAt": "2026-10-31T09:26:19.811Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "6e4caffd-d3c7-4e8e-9172-71b237b13b84",
+        "mozaikAt": "2026-10-31T09:26:19.807Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 721,
+      "id": "f4f05a63-5374-475e-94d8-a9506649de0f",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:19.817Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "1318f70e-060d-46e5-b45d-28de8b68c803",
+        "mozaikAt": "2026-10-31T09:26:19.812Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 722,
+      "id": "b8ed0061-fcb5-4c88-a1d0-e80d87d67244",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:19.817Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 0,
+        "loopId": "1318f70e-060d-46e5-b45d-28de8b68c803",
+        "mozaikAt": "2026-10-31T09:26:19.812Z",
+        "structuredOutput": "timeline_output"
+      }
+    },
+    {
+      "seq": 723,
+      "id": "1ddbe18b-12d3-4438-9792-a678925acd56",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:21.592Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "2331691f-77c0-41a7-8bce-0f27635fc571",
+        "tokens": {
+          "input": 950,
+          "total": 1063,
+          "output": 113
+        },
+        "mozaikAt": "2026-10-31T09:26:21.585Z",
+        "itemTypes": [
+          "message"
+        ]
+      }
+    },
+    {
+      "seq": 724,
+      "id": "44d19874-d6f8-4573-b335-f473c2aa5f37",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.model.answer",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:21.592Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "2331691f-77c0-41a7-8bce-0f27635fc571",
+        "mozaikAt": "2026-10-31T09:26:21.586Z",
+        "answerChars": 412
+      }
+    },
+    {
+      "seq": 725,
+      "id": "129e04df-1681-41fb-9b26-32aa7d7a58dd",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:21.603Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "1318f70e-060d-46e5-b45d-28de8b68c803",
+        "tokens": {
+          "input": 1084,
+          "total": 1270,
+          "output": 186
+        },
+        "mozaikAt": "2026-10-31T09:26:21.598Z",
+        "itemTypes": [
+          "message"
+        ]
+      }
+    },
+    {
+      "seq": 726,
+      "id": "bbee0f37-a5f9-4fc6-8f86-2325fe0151bd",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.model.answer",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:21.603Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "1318f70e-060d-46e5-b45d-28de8b68c803",
+        "mozaikAt": "2026-10-31T09:26:21.599Z",
+        "answerChars": 595
+      }
+    },
+    {
+      "seq": 727,
+      "id": "8cb693f0-1ffd-45ad-bc34-1b550bec6e3b",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.completed",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:21.634Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "billing",
+        "label": "Review the billing variables available at the start of the investigation.",
+        "summary": "No comparison is possible yet; 2 inputs are missing.",
+        "agentRunId": "9bae8be3-9993-4660-a640-b5956e2078d5"
+      }
+    },
+    {
+      "seq": 728,
+      "id": "e67b89c3-594a-4823-9e1e-3580c75f84b5",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "finding.proposed",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:21.663Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "by": "billing",
+        "topic": "missing:billed_volume",
+        "findingRef": "FN1",
+        "supersedes": null
+      }
+    },
+    {
+      "seq": 729,
+      "id": "3ccf0bd2-f748-4be8-a653-a65a8b80f8a6",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "finding.proposed",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:21.665Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "by": "billing",
+        "topic": "missing:rate",
+        "findingRef": "FN2",
+        "supersedes": null
+      }
+    },
+    {
+      "seq": 730,
+      "id": "2691a7f7-d90e-43de-848a-b55a6c1214c5",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.completed",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:21.667Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "timeline",
+        "label": "Reconstruct the sequence from all documents.",
+        "summary": "Added 2 timeline entries.",
+        "agentRunId": "67131e8e-7355-4746-b4cd-8ff0c35ca42a"
+      }
+    },
+    {
+      "seq": 731,
+      "id": "eacb04cb-1b9a-4418-a425-3004838418e7",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "timeline.updated",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:21.670Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "eventRefs": [
+          "T1",
+          "T2"
+        ]
+      }
+    },
+    {
+      "seq": 732,
+      "id": "241aa95f-ee31-4666-b4bb-c70d29c6e74f",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "contract",
+      "occurredAt": "2026-10-31T09:26:21.920Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "deb0b3fd-949c-43bd-b613-66b63ecd724f",
+        "tokens": {
+          "input": 1210,
+          "total": 1470,
+          "output": 260
+        },
+        "mozaikAt": "2026-10-31T09:26:21.918Z",
+        "itemTypes": [
+          "message"
+        ]
+      }
+    },
+    {
+      "seq": 733,
+      "id": "0b121866-2314-42e0-9a1d-90fc3cf184f2",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.model.answer",
+      "producer": "contract",
+      "occurredAt": "2026-10-31T09:26:21.920Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "deb0b3fd-949c-43bd-b613-66b63ecd724f",
+        "mozaikAt": "2026-10-31T09:26:21.918Z",
+        "answerChars": 934
+      }
+    },
+    {
+      "seq": 734,
+      "id": "f52f81f9-2b00-48ca-a4f4-8161f2d138dc",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.completed",
+      "producer": "contract",
+      "occurredAt": "2026-10-31T09:26:21.947Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "contract",
+        "label": "Review all documents for chargeable-volume terms.",
+        "summary": "No document states how chargeable volume is determined (terms missing).",
+        "agentRunId": "a3709d2a-22b2-4ba7-a8f8-5e547b2c4791"
+      }
+    },
+    {
+      "seq": 735,
+      "id": "b2f33df0-903b-491c-a9e0-eeb4d26cd512",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "question.raised",
+      "producer": "contract",
+      "occurredAt": "2026-10-31T09:26:21.949Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "by": "contract",
+        "questionRefs": [
+          "Q1"
+        ]
+      }
+    },
+    {
+      "seq": 736,
+      "id": "acb2678e-25fd-48c8-a619-ceddd0810fcf",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "contract.interpretation",
+      "producer": "contract",
+      "occurredAt": "2026-10-31T09:26:21.951Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "termsStatus": "terms_missing",
+        "clauseFactRefs": [],
+        "interpretationRef": "I1",
+        "affectsCalculation": false
+      }
+    },
+    {
+      "seq": 737,
+      "id": "2bd4d9a3-74ee-40b3-a76f-106c9eb8e510",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "evidence",
+      "occurredAt": "2026-10-31T09:26:23.064Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "6e4caffd-d3c7-4e8e-9172-71b237b13b84",
+        "tokens": {
+          "input": 1419,
+          "total": 2416,
+          "output": 997
+        },
+        "mozaikAt": "2026-10-31T09:26:23.055Z",
+        "itemTypes": [
+          "message"
+        ]
+      }
+    },
+    {
+      "seq": 738,
+      "id": "2948389f-cdbd-4ece-80b9-6c1d1abd33bd",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.model.answer",
+      "producer": "evidence",
+      "occurredAt": "2026-10-31T09:26:23.064Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "6e4caffd-d3c7-4e8e-9172-71b237b13b84",
+        "mozaikAt": "2026-10-31T09:26:23.055Z",
+        "answerChars": 2693
+      }
+    },
+    {
+      "seq": 739,
+      "id": "6bfe7a98-b7d3-4c39-93da-70969f802e78",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.completed",
+      "producer": "evidence",
+      "occurredAt": "2026-10-31T09:26:23.136Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "evidence",
+        "label": "Read all documents",
+        "summary": "Recorded 10 cited facts.",
+        "agentRunId": "438735a9-ccf8-4510-a020-871274f0c45c"
+      }
+    },
+    {
+      "seq": 740,
+      "id": "1a3a495d-387b-41cb-a0d7-b6a3217390fc",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "fact.recorded",
+      "producer": "evidence",
+      "occurredAt": "2026-10-31T09:26:23.141Z",
+      "causationId": "80a4fd9e-f905-4e8a-8573-813d9d09cbf7",
+      "evidenceRevision": 3,
+      "payload": {
+        "by": "evidence",
+        "keys": [
+          "carrier_name",
+          "package_count",
+          "billed_volume_cbm",
+          "rate_per_cbm",
+          "billed_freight_amount",
+          "declared_volume_cbm",
+          "payment_status"
+        ],
+        "factRefs": [
+          "F1",
+          "F2",
+          "F3",
+          "F4",
+          "F5",
+          "F6",
+          "F7",
+          "F8",
+          "F9",
+          "F10"
+        ]
+      }
+    },
+    {
+      "seq": 741,
+      "id": "eb15b634-99b3-42bb-af48-8fcc2f6497a3",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:23.145Z",
+      "causationId": "1a3a495d-387b-41cb-a0d7-b6a3217390fc",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "timeline",
+        "label": "New dated facts were recorded (carrier_name, package_count, billed_volume_cbm, r",
+        "attempt": 1,
+        "agentRunId": "9b0b66f0-d896-42bf-bee2-3d2715e4b308"
+      }
+    },
+    {
+      "seq": 742,
+      "id": "c0acde8a-9295-4ffd-89c9-afa872effefd",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:23.157Z",
+      "causationId": "1a3a495d-387b-41cb-a0d7-b6a3217390fc",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "billing",
+        "label": "New or corrected facts were recorded (carrier_name, package_count, billed_volume",
+        "attempt": 1,
+        "agentRunId": "0d223d97-ddc6-4f5f-95c4-72f53f0bdf57"
+      }
+    },
+    {
+      "seq": 743,
+      "id": "f88e3467-8df2-4396-9b9b-75ede900b0f0",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:23.168Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 0,
+        "loopId": "cc7c8e01-f8d8-4de8-a5e0-7778ace41a33",
+        "mozaikAt": "2026-10-31T09:26:23.162Z",
+        "structuredOutput": "timeline_output"
+      }
+    },
+    {
+      "seq": 744,
+      "id": "bc3c77d2-97ea-4b1b-bea4-c842cf4d922d",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:23.168Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "cc7c8e01-f8d8-4de8-a5e0-7778ace41a33",
+        "mozaikAt": "2026-10-31T09:26:23.162Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 745,
+      "id": "f2b6ce3c-bfc1-4336-a9b4-a81bed46f774",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:23.174Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "217c66eb-3438-4e51-a70a-a29bff5c09d4",
+        "mozaikAt": "2026-10-31T09:26:23.171Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 746,
+      "id": "18f7c426-9358-4a69-b695-18c8971c65a3",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:23.174Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 2,
+        "loopId": "217c66eb-3438-4e51-a70a-a29bff5c09d4",
+        "mozaikAt": "2026-10-31T09:26:23.171Z",
+        "structuredOutput": "billing_output"
+      }
+    },
+    {
+      "seq": 747,
+      "id": "9c5ab0cc-f251-4fc0-9b43-31293f3848b1",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:23.774Z",
+      "causationId": "e67b89c3-594a-4823-9e1e-3580c75f84b5,3ccf0bd2-f748-4be8-a653-a65a8b80f8a6,eacb04cb-1b9a-4418-a425-3004838418e7,acb2678e-25fd-48c8-a619-ceddd0810fcf",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "case",
+        "label": "Initial assessment",
+        "attempt": 1,
+        "agentRunId": "789f2826-81a2-4a3f-8a57-d5863fb0b19d"
+      }
+    },
+    {
+      "seq": 748,
+      "id": "d16ac672-7b2c-4702-a4ca-95bacfd714be",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:23.792Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 0,
+        "loopId": "b7b63b22-4824-4557-8bd9-16c657890274",
+        "mozaikAt": "2026-10-31T09:26:23.789Z",
+        "structuredOutput": "case_output"
+      }
+    },
+    {
+      "seq": 749,
+      "id": "d6bbfd20-707a-4ed5-af54-dbfc2f1c17c6",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:23.792Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "b7b63b22-4824-4557-8bd9-16c657890274",
+        "mozaikAt": "2026-10-31T09:26:23.789Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 750,
+      "id": "7a05d959-b4b6-405c-bf84-3679e0a52f35",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:24.202Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "217c66eb-3438-4e51-a70a-a29bff5c09d4",
+        "tokens": {
+          "input": 1273,
+          "total": 1307,
+          "output": 34
+        },
+        "mozaikAt": "2026-10-31T09:26:24.197Z",
+        "itemTypes": [
+          "function_call"
+        ]
+      }
+    },
+    {
+      "seq": 751,
+      "id": "ce18f726-a835-454c-8d77-8fe31bfa4f54",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.function_call.started",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:24.202Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "tool": "calculate_charge",
+        "loopId": "217c66eb-3438-4e51-a70a-a29bff5c09d4",
+        "mozaikAt": "2026-10-31T09:26:24.197Z"
+      }
+    },
+    {
+      "seq": 752,
+      "id": "d5e29145-bf61-4e54-9a32-31f8685be019",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.function_call.completed",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:24.202Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "217c66eb-3438-4e51-a70a-a29bff5c09d4",
+        "mozaikAt": "2026-10-31T09:26:24.198Z"
+      }
+    },
+    {
+      "seq": 753,
+      "id": "12e5b6f8-c6c6-4c70-a174-ac07a29e272f",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:24.202Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "217c66eb-3438-4e51-a70a-a29bff5c09d4",
+        "mozaikAt": "2026-10-31T09:26:24.198Z",
+        "contextItems": 4
+      }
+    },
+    {
+      "seq": 754,
+      "id": "de122b0a-9f8e-4a8e-b7ae-48ca0dc02cbd",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:24.404Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "cc7c8e01-f8d8-4de8-a5e0-7778ace41a33",
+        "tokens": {
+          "input": 1167,
+          "total": 1395,
+          "output": 228
+        },
+        "mozaikAt": "2026-10-31T09:26:24.402Z",
+        "itemTypes": [
+          "message"
+        ]
+      }
+    },
+    {
+      "seq": 755,
+      "id": "cd46b030-10ad-43a2-b97d-8abab253a397",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.model.answer",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:24.404Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "cc7c8e01-f8d8-4de8-a5e0-7778ace41a33",
+        "mozaikAt": "2026-10-31T09:26:24.402Z",
+        "answerChars": 785
+      }
+    },
+    {
+      "seq": 756,
+      "id": "f3462281-857b-4681-baeb-c9badf55452d",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.completed",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:24.438Z",
+      "causationId": "1a3a495d-387b-41cb-a0d7-b6a3217390fc",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "timeline",
+        "label": "New dated facts were recorded (carrier_name, package_count, billed_volume_cbm, r",
+        "summary": "Added 4 timeline entries.",
+        "agentRunId": "9b0b66f0-d896-42bf-bee2-3d2715e4b308"
+      }
+    },
+    {
+      "seq": 757,
+      "id": "b0040819-aef5-4e52-a27f-d84d2edda64c",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "timeline.updated",
+      "producer": "timeline",
+      "occurredAt": "2026-10-31T09:26:24.439Z",
+      "causationId": "1a3a495d-387b-41cb-a0d7-b6a3217390fc",
+      "evidenceRevision": 3,
+      "payload": {
+        "eventRefs": [
+          "T3",
+          "T4",
+          "T5",
+          "T6"
+        ]
+      }
+    },
+    {
+      "seq": 758,
+      "id": "5b8007fa-b95e-4a24-82ad-80673483c7f0",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.failed",
+      "producer": "billing",
+      "occurredAt": "2026-10-31T09:26:24.644Z",
+      "causationId": "1a3a495d-387b-41cb-a0d7-b6a3217390fc",
+      "evidenceRevision": 3,
+      "payload": {
+        "code": "provider_bad_request",
+        "role": "billing",
+        "label": "New or corrected facts were recorded (carrier_name, package_count, billed_volume",
+        "message": "The provider rejected the request ({\"error\":{\"code\":400,\"message\":\"Function call is missing a thought_signature in functionCall parts. This is required for tools to work correctly, and missing thought_signature may lead to degraded model performance. Addi)"
+      }
+    },
+    {
+      "seq": 759,
+      "id": "5a806b53-193b-4cea-871f-013744e3e13a",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:25.866Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "b7b63b22-4824-4557-8bd9-16c657890274",
+        "tokens": {
+          "input": 1478,
+          "total": 1953,
+          "output": 475
+        },
+        "mozaikAt": "2026-10-31T09:26:25.849Z",
+        "itemTypes": [
+          "message"
+        ]
+      }
+    },
+    {
+      "seq": 760,
+      "id": "cd11004d-4606-4c43-9866-7a883a0cfbbe",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.model.answer",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:25.866Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "b7b63b22-4824-4557-8bd9-16c657890274",
+        "mozaikAt": "2026-10-31T09:26:25.850Z",
+        "answerChars": 1723
+      }
+    },
+    {
+      "seq": 761,
+      "id": "f8b1c36f-94d3-4dcc-9a63-dbb5eb421680",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.completed",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:25.942Z",
+      "causationId": "e67b89c3-594a-4823-9e1e-3580c75f84b5,3ccf0bd2-f748-4be8-a653-a65a8b80f8a6,eacb04cb-1b9a-4418-a425-3004838418e7,acb2678e-25fd-48c8-a619-ceddd0810fcf",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "case",
+        "label": "Initial assessment",
+        "summary": "Not enough evidence yet.",
+        "agentRunId": "789f2826-81a2-4a3f-8a57-d5863fb0b19d"
+      }
+    },
+    {
+      "seq": 762,
+      "id": "872f1b30-38d5-47b7-9e75-7cf09b112e21",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "finding.proposed",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:25.944Z",
+      "causationId": "e67b89c3-594a-4823-9e1e-3580c75f84b5,3ccf0bd2-f748-4be8-a653-a65a8b80f8a6,eacb04cb-1b9a-4418-a425-3004838418e7,acb2678e-25fd-48c8-a619-ceddd0810fcf",
+      "evidenceRevision": 3,
+      "payload": {
+        "by": "case",
+        "topic": "interpretation:overall",
+        "findingRef": "FN3"
+      }
+    },
+    {
+      "seq": 763,
+      "id": "9c302695-1791-458f-a89e-99e21d7953f6",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "question.raised",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:25.946Z",
+      "causationId": "e67b89c3-594a-4823-9e1e-3580c75f84b5,3ccf0bd2-f748-4be8-a653-a65a8b80f8a6,eacb04cb-1b9a-4418-a425-3004838418e7,acb2678e-25fd-48c8-a619-ceddd0810fcf",
+      "evidenceRevision": 3,
+      "payload": {
+        "by": "case",
+        "questionRefs": [
+          "Q2"
+        ]
+      }
+    },
+    {
+      "seq": 764,
+      "id": "4b73fbb4-33f4-46fc-bc1c-455c7c9937b6",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "assessment.updated",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:25.950Z",
+      "causationId": "e67b89c3-594a-4823-9e1e-3580c75f84b5,3ccf0bd2-f748-4be8-a653-a65a8b80f8a6,eacb04cb-1b9a-4418-a425-3004838418e7,acb2678e-25fd-48c8-a619-ceddd0810fcf",
+      "evidenceRevision": 3,
+      "payload": {
+        "changed": true,
+        "version": 1,
+        "classification": "insufficient_evidence"
+      }
+    },
+    {
+      "seq": 765,
+      "id": "feb8ab02-73eb-4c43-acd1-f8ce6853678c",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "drafting",
+      "occurredAt": "2026-10-31T09:26:25.963Z",
+      "causationId": "4b73fbb4-33f4-46fc-bc1c-455c7c9937b6",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "drafting",
+        "label": "Draft letter from assessment v1",
+        "attempt": 1,
+        "agentRunId": "a0cf429f-96f4-41ca-99e4-574d75a60a62"
+      }
+    },
+    {
+      "seq": 766,
+      "id": "79507e45-25e2-47f6-a898-2ec3daa59b32",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "drafting",
+      "occurredAt": "2026-10-31T09:26:25.984Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 0,
+        "loopId": "e7b6ff7b-5d23-444d-a364-50961da3b052",
+        "mozaikAt": "2026-10-31T09:26:25.980Z",
+        "structuredOutput": "draft_output"
+      }
+    },
+    {
+      "seq": 767,
+      "id": "653d402a-5893-4f39-984a-40fe0b32c03c",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "drafting",
+      "occurredAt": "2026-10-31T09:26:25.984Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "e7b6ff7b-5d23-444d-a364-50961da3b052",
+        "mozaikAt": "2026-10-31T09:26:25.980Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 768,
+      "id": "1a567734-1b63-4143-9128-c31575ec39a2",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:26.277Z",
+      "causationId": "b0040819-aef5-4e52-a27f-d84d2edda64c",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "case",
+        "label": "Reassess after new evidence",
+        "attempt": 1,
+        "agentRunId": "a9a14141-09c1-4dc3-b8f5-bd1e8481ff5c"
+      }
+    },
+    {
+      "seq": 769,
+      "id": "ad32dc8f-be19-4c94-859e-288ee8d37b64",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:26.319Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 0,
+        "loopId": "d6da2f7d-289d-4ba5-89d9-19886c6eeadf",
+        "mozaikAt": "2026-10-31T09:26:26.308Z",
+        "structuredOutput": "case_output"
+      }
+    },
+    {
+      "seq": 770,
+      "id": "582407aa-f4fb-4d9f-8986-4fb030b5c178",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:26.320Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "d6da2f7d-289d-4ba5-89d9-19886c6eeadf",
+        "mozaikAt": "2026-10-31T09:26:26.309Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 771,
+      "id": "bea67c6e-9438-4b3f-80a2-956fc869df8a",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "drafting",
+      "occurredAt": "2026-10-31T09:26:27.633Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "e7b6ff7b-5d23-444d-a364-50961da3b052",
+        "tokens": {
+          "input": 1164,
+          "total": 1576,
+          "output": 412
+        },
+        "mozaikAt": "2026-10-31T09:26:27.630Z",
+        "itemTypes": [
+          "message"
+        ]
+      }
+    },
+    {
+      "seq": 772,
+      "id": "318541eb-5324-4ccc-b9c1-38d75c50d2aa",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.model.answer",
+      "producer": "drafting",
+      "occurredAt": "2026-10-31T09:26:27.633Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "e7b6ff7b-5d23-444d-a364-50961da3b052",
+        "mozaikAt": "2026-10-31T09:26:27.630Z",
+        "answerChars": 1408
+      }
+    },
+    {
+      "seq": 773,
+      "id": "aa798fb2-d182-475c-adfa-c06510a6a8bd",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.completed",
+      "producer": "drafting",
+      "occurredAt": "2026-10-31T09:26:27.695Z",
+      "causationId": "4b73fbb4-33f4-46fc-bc1c-455c7c9937b6",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "drafting",
+        "label": "Draft letter from assessment v1",
+        "summary": "Wrote the letter (v1).",
+        "agentRunId": "a0cf429f-96f4-41ca-99e4-574d75a60a62"
+      }
+    },
+    {
+      "seq": 774,
+      "id": "32597066-7134-40ab-8785-af4f3d0a767c",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "draft.updated",
+      "producer": "drafting",
+      "occurredAt": "2026-10-31T09:26:27.696Z",
+      "causationId": "4b73fbb4-33f4-46fc-bc1c-455c7c9937b6",
+      "evidenceRevision": 3,
+      "payload": {
+        "version": 1,
+        "proposed": false
+      }
+    },
+    {
+      "seq": 775,
+      "id": "98e43b2a-0e2f-4546-b1f9-fec458ac2952",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:29.826Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "d6da2f7d-289d-4ba5-89d9-19886c6eeadf",
+        "tokens": {
+          "input": 1551,
+          "total": 2051,
+          "output": 500
+        },
+        "mozaikAt": "2026-10-31T09:26:29.824Z",
+        "itemTypes": [
+          "message"
+        ]
+      }
+    },
+    {
+      "seq": 776,
+      "id": "45f65995-e2be-4b92-9528-ef256a5d9df8",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.model.answer",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:29.826Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "d6da2f7d-289d-4ba5-89d9-19886c6eeadf",
+        "mozaikAt": "2026-10-31T09:26:29.824Z",
+        "answerChars": 1934
+      }
+    },
+    {
+      "seq": 777,
+      "id": "676d50a2-4ce7-423e-9460-6fe3e0186df6",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.started",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:29.837Z",
+      "causationId": "b0040819-aef5-4e52-a27f-d84d2edda64c",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "case",
+        "label": "Reassess after new evidence",
+        "attempt": 2,
+        "agentRunId": "dd66d576-937c-465d-b82e-1bca4b56776a"
+      }
+    },
+    {
+      "seq": 778,
+      "id": "d50cc4f3-c5cf-4371-a61d-7b113b76d157",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.loop.started",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:29.850Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "tools": 0,
+        "loopId": "d118d789-a9d1-4a60-9431-fb0773da368c",
+        "mozaikAt": "2026-10-31T09:26:29.848Z",
+        "structuredOutput": "case_output"
+      }
+    },
+    {
+      "seq": 779,
+      "id": "dc44935e-b3fd-431b-8d6e-0ee7d6a425e9",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.started",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:26:29.851Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "model": "gemini-3.5-flash-lite",
+        "loopId": "d118d789-a9d1-4a60-9431-fb0773da368c",
+        "mozaikAt": "2026-10-31T09:26:29.849Z",
+        "contextItems": 2
+      }
+    },
+    {
+      "seq": 780,
+      "id": "49e396ca-3d98-41f0-a5b4-0626a3108d5e",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.inference.completed",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:27:22.327Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "d118d789-a9d1-4a60-9431-fb0773da368c",
+        "tokens": {
+          "input": 1585,
+          "total": 2102,
+          "output": 517
+        },
+        "mozaikAt": "2026-10-31T09:27:22.324Z",
+        "itemTypes": [
+          "message"
+        ]
+      }
+    },
+    {
+      "seq": 781,
+      "id": "62ecd45d-1e35-4121-a5e6-6dd5276d7f65",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "mozaik.model.answer",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:27:22.551Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "loopId": "d118d789-a9d1-4a60-9431-fb0773da368c",
+        "mozaikAt": "2026-10-31T09:27:22.324Z",
+        "answerChars": 1913
+      }
+    },
+    {
+      "seq": 782,
+      "id": "9f36fdee-6e60-4baf-bd3c-05488a591980",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "agent.completed",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:27:22.588Z",
+      "causationId": "b0040819-aef5-4e52-a27f-d84d2edda64c",
+      "evidenceRevision": 3,
+      "payload": {
+        "role": "case",
+        "label": "Reassess after new evidence",
+        "summary": "Not enough evidence yet.",
+        "agentRunId": "dd66d576-937c-465d-b82e-1bca4b56776a"
+      }
+    },
+    {
+      "seq": 783,
+      "id": "3b8dd41c-4281-40f6-9e61-42a0860b1be3",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "assessment.updated",
+      "producer": "case",
+      "occurredAt": "2026-10-31T09:27:22.590Z",
+      "causationId": "b0040819-aef5-4e52-a27f-d84d2edda64c",
+      "evidenceRevision": 3,
+      "payload": {
+        "changed": false,
+        "version": 2,
+        "classification": "insufficient_evidence"
+      }
+    },
+    {
+      "seq": 784,
+      "id": "64a9f859-6370-4962-9cd7-b9fffcf20a04",
+      "runId": "f507fb25-bf50-4d4b-86e2-a611d8918e03",
+      "type": "run.completed",
+      "producer": "system",
+      "occurredAt": "2026-10-31T09:27:23.907Z",
+      "causationId": null,
+      "evidenceRevision": 3,
+      "payload": {
+        "status": "partial",
+        "caseStatus": "needs_input",
+        "modelCalls": 11,
+        "failedRoles": [
+          "billing"
+        ],
+        "draftVersion": 1,
+        "assessmentVersion": 2,
+        "staleResultsDiscarded": 0,
+        "duplicateEventsDropped": 0
+      }
+    }
+  ]
+}
