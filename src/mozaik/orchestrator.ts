@@ -146,10 +146,16 @@ export async function runInvestigation(runId: string): Promise<RunOutcome> {
   // ---- kick off: the first wave reacts independently to the same event
   const docs = await listDocuments(c.id);
   const readyRefs = docs.filter((d) => d.parseStatus === 'ready').map((d) => d.ref);
-  const trigger = run.trigger as { documentRefs?: string[]; reason?: string };
-  if (run.kind === 'reassess' && trigger.documentRefs?.length) {
-    const added = docs.filter((d) => trigger.documentRefs!.includes(d.ref));
-    await emit('evidence.added', { documentRefs: trigger.documentRefs, kinds: added.map((d) => d.kind), reason: trigger.reason ?? 'New evidence added' }, { producer: 'system', key: `${runId}:evidence.added` });
+  const trigger = run.trigger as { documentRefs?: string[]; reason?: string; events?: { type: string; payload: Record<string, unknown> }[] };
+  if (run.kind === 'reassess') {
+    // A reassessment starts from what changed, never from case.started: only affected agents wake up.
+    if (trigger.documentRefs?.length) {
+      const added = docs.filter((d) => trigger.documentRefs!.includes(d.ref));
+      await emit('evidence.added', { documentRefs: trigger.documentRefs, kinds: added.map((d) => d.kind), reason: trigger.reason ?? 'New evidence added' }, { producer: 'system', key: `${runId}:evidence.added` });
+    }
+    for (const [i, ev] of (trigger.events ?? []).entries()) {
+      await emit(ev.type as never, ev.payload, { producer: 'system', key: `${runId}:${ev.type}:${i}` });
+    }
   } else {
     await emit('case.started', { documentRefs: readyRefs, targeted: st.targeted }, { producer: 'system', key: `${runId}:case.started` });
   }
