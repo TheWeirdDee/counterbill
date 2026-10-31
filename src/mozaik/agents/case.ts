@@ -4,6 +4,7 @@
  * each change is recorded with the assessment.
  */
 import { createAgent } from '@mozaik-ai/core';
+import { query } from '@/db/pool';
 import {
   addQuestion,
   applyFinding,
@@ -19,7 +20,7 @@ import {
   type FindingRow,
   type QuestionRow,
 } from '@/db/repo';
-import { allowedFigures, contentHash, forbiddenLanguage, unsupportedFigures, type FactLite } from '@/domain/case-rules';
+import { allowedClassifications, allowedFigures, contentHash, forbiddenLanguage, unsupportedFigures, type FactLite } from '@/domain/case-rules';
 import { refKind } from '@/domain/citations';
 import { ASSESSMENT_CLASS_LABEL, CaseOutput } from '@/domain/schemas';
 import { emit } from '../events';
@@ -118,20 +119,31 @@ async function runCase(triggers: string[], causation: string) {
       const active = await listFindings(caseId, {}, db);
       const activeRefs = new Set(active.map((f) => f.ref));
       const problems: string[] = [];
+      // Billing owns volume:*, package_* and missing:* findings and has already stored them deterministically; a model
+      // that re-proposes them is ignored (not allowed to overwrite them) rather than failing the whole assessment.
+      const ignored = out.findings.filter((f) => RESERVED.test(f.topic)).length;
+      out.findings = out.findings.filter((f) => !RESERVED.test(f.topic));
 
       out.findings.forEach((f, i) => {
         const where = `findings[${i}] (${f.topic})`;
-        if (RESERVED.test(f.topic)) problems.push(`${where}: topics starting with volume:, package_ or missing: belong to the Billing Agent; use interpretation:* topics`);
         requireKnownRefs([...f.factRefs, ...f.calcRefs, ...f.spanRefs], index, where, problems);
         if (f.factRefs.some((r) => refKind(r) !== 'fact')) problems.push(`${where}: factRefs must be F-identifiers`);
         if (f.calcRefs.some((r) => refKind(r) !== 'calculation')) problems.push(`${where}: calcRefs must be C-identifiers`);
         if (f.basis === 'sourced' && !f.factRefs.length && !f.calcRefs.length && !f.spanRefs.length) problems.push(`${where}: a "sourced" finding must cite at least one fact, calculation or span (or be labelled basis "inference")`);
+        if (f.category === 'missing_evidence' && f.status === 'supported') problems.push(`${where}: a missing-evidence finding cannot be "supported"; use "unresolved"`);
         if (f.status === 'supported' && f.category === 'supported_discrepancy' && !f.calcRefs.length) problems.push(`${where}: a supported discrepancy needs a calculation reference`);
       });
-      out.findingOps.forEach((op, i) => {
-        if (!activeRefs.has(op.ref)) problems.push(`findingOps[${i}]: ${op.ref} is not an active finding`);
-      });
+      // An operation on a finding that is gone, superseded, or may not be confirmed is ignored (and counted), not fatal:
+      // the assessment itself is still valid and the operation would change nothing safely.
+      const usableOps = out.findingOps.filter((op) => activeRefs.has(op.ref) && !(op.action === 'confirm' && active.find((f) => f.ref === op.ref)?.category === 'missing_evidence'));
+      const ignoredOps = out.findingOps.length - usableOps.length;
+      out.findingOps = usableOps;
       const allowed = allowedFigures(facts.map(lite), calcs);
+      const interp = await currentInterpretation(caseId, db);
+      const verdict = allowedClassifications(calcs, interp);
+      if (!verdict.allowed.includes(out.classification)) {
+        problems.push(`classification "${out.classification}" is not supported by the current calculations: ${verdict.reasons[out.classification] ?? 'not allowed'}. Choose one of: ${verdict.allowed.join(', ')}.`);
+      }
       const prose = [out.headline, out.summary, out.strongestCounterExplanation, out.changeReason ?? '', out.nextAction, ...out.findings.flatMap((f) => [f.title, f.explanation]), ...out.questions.map((q) => q.prompt)].join('\n');
       const bad = unsupportedFigures(prose, allowed);
       if (bad.length) problems.push(`Your text states figures that are not in the facts or calculations: ${bad.join(', ')}.`);
@@ -157,6 +169,10 @@ async function runCase(triggers: string[], causation: string) {
         const row = await setFindingStatus(db, caseId, op.ref, status, op.reason);
         if (row) (op.action === 'withdraw' ? withdrawn : statusChanged).push(row);
       }
+      // Questions the new evidence answers are closed (only genuinely open ones; unknown refs are ignored).
+      const resolved = out.resolvedQuestionRefs.length
+        ? await query<{ ref: string }>("update questions set status = 'resolved' where case_id = $1 and ref = any($2) and status = 'open' returning ref", [caseId, out.resolvedQuestionRefs], db)
+        : [];
       const questions: QuestionRow[] = [];
       for (const q of out.questions) {
         const r = await addQuestion(db, caseId, q, { raisedBy: 'case', runId, evidenceRevision: revision });
@@ -194,7 +210,7 @@ async function runCase(triggers: string[], causation: string) {
       });
       return {
         result: { assessment, created, revised, withdrawn, statusChanged, questions, changed },
-        summary: `${ASSESSMENT_CLASS_LABEL[out.classification]}.${classChanged ? ' The previous reading was revised.' : ''}`,
+        summary: `${ASSESSMENT_CLASS_LABEL[out.classification]}.${classChanged ? ' The previous reading was revised.' : ''}${ignored ? ` (Ignored ${ignored} finding${ignored === 1 ? '' : 's'} that duplicated the Billing Agent's.)` : ''}${resolved.length ? ` Closed ${resolved.length} question${resolved.length === 1 ? '' : 's'} the evidence now answers.` : ''}${ignoredOps ? ` (Ignored ${ignoredOps} operation${ignoredOps === 1 ? '' : 's'} on findings that were gone or cannot be confirmed.)` : ''}`,
       };
     },
     async after({ assessment, created, revised, questions, changed }) {
