@@ -21,16 +21,16 @@
   align-items: center;
   gap: 10px;
   font-family: var(--font-display);
-  font-weight: 650;
-  font-size: 19px;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.025em;
   color: var(--text);
   text-decoration: none;
   white-space: nowrap;
 }
 .wordmark svg {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   flex: none;
 }
 .nav-links {
@@ -141,7 +141,7 @@
 /* ------------------------------------------------------------ landing */
 .hero {
   position: relative;
-  padding: clamp(48px, 8vw, 104px) 0 clamp(40px, 6vw, 72px);
+  padding: clamp(40px, 6vw, 88px) 0 clamp(36px, 4.5vw, 64px);
   overflow: hidden;
 }
 .hero .grid-bg {
@@ -278,7 +278,7 @@
 }
 
 .band {
-  padding: clamp(56px, 8vw, 104px) 0;
+  padding: var(--space-section) 0;
   border-top: 1px solid var(--border);
 }
 .band.alt {
@@ -286,13 +286,13 @@
 }
 .band-head {
   max-width: 760px;
-  margin-bottom: clamp(28px, 4vw, 48px);
+  margin-bottom: var(--space-head);
 }
 .band-head h2 {
   font-size: clamp(1.875rem, 1.3rem + 2.2vw, 3rem);
   letter-spacing: -0.03em;
   line-height: 1.08;
-  margin: 10px 0 14px;
+  margin: 10px 0 12px;
 }
 .band-head p {
   color: var(--text-2);
@@ -769,7 +769,7 @@
 .closing {
   position: relative;
   text-align: left;
-  padding: clamp(64px, 9vw, 120px) 0;
+  padding: calc(var(--space-section) * 1.4) 0;
   border-top: 1px solid var(--border);
   overflow: hidden;
 }
@@ -794,7 +794,7 @@
 .site-footer {
   border-top: 1px solid var(--border);
   background: var(--surface);
-  padding: 56px 0 32px;
+  padding: var(--space-section) 0 28px;
   font-size: 14.5px;
 }
 .footer-grid {
@@ -1161,7 +1161,8 @@
  * The hero entrance hides its elements only once the head script has set .js and only when motion is allowed.
  * If the animation library never runs, the keyframe still reveals them after 2.5 s. */
 @media (prefers-reduced-motion: no-preference) {
-  .js [data-intro]:not([data-intro='done']) {
+  .js [data-intro]:not([data-intro='done']),
+  .js [data-seq]:not([data-seq='done']) {
     opacity: 0;
     transform: translateY(14px);
     animation: intro-failsafe 0.01s 2.5s forwards;
@@ -1288,7 +1289,8 @@
 /* Printing or saving as PDF must never produce blank sections. */
 @media print {
   [data-reveal],
-  [data-intro] {
+  [data-intro],
+  [data-seq] {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
@@ -1296,5 +1298,145 @@
   .site-header,
   .grid-bg {
     display: none !important;
+  }
+}
+
+/* B: the kinds of conflict */
+.conflicts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-group);
+}
+.conflicts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.conflicts h3 {
+  font-size: 1.1875rem;
+  margin: 0;
+}
+.conflicts p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 15px;
+  flex: 1;
+}
+.conflicts .pair {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+.conflicts .pair i {
+  font-style: normal;
+  color: var(--accent);
+  padding: 0 6px;
+}
+@media (max-width: 900px) {
+  .conflicts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* E: the complaint is the deliverable */
+.deliverable {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+.letter-preview {
+  margin: 0;
+  background: var(--paper);
+  color: var(--paper-text);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: clamp(20px, 3vw, 36px);
+  box-shadow: var(--shadow);
+  font-family: var(--serif);
+  display: grid;
+  gap: 14px;
+}
+.letter-preview .eyebrow {
+  color: #575762;
+  font-family: var(--font-body);
+}
+.letter-preview b {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #575762;
+  margin-bottom: 2px;
+}
+.letter-preview .lp-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  font-size: 15.5px;
+}
+.letter-preview .lp-row b {
+  margin: 0;
+}
+.letter-preview .lp-block {
+  font-size: 15.5px;
+  line-height: 1.55;
+  padding-top: 12px;
+  border-top: 1px solid #d9d6cb;
+}
+.letter-preview .lp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #d9d6cb;
+}
+.lp-chip {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 550;
+  padding: 4px 10px;
+  border: 1px solid #8a8a82;
+  border-radius: 999px;
+  color: #18181b;
+  background: #ffffff;
+}
+.deliverable-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+.deliverable-list li {
+  padding: 18px 0;
+  border-top: 1px solid var(--border);
+}
+.deliverable-list li:first-child {
+  border-top: 0;
+  padding-top: 4px;
+}
+.deliverable-list h3 {
+  font-size: 1.125rem;
+  margin: 0 0 4px;
+}
+.deliverable-list p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 15px;
+  max-width: 44ch;
+}
+@media (max-width: 900px) {
+  .deliverable {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
