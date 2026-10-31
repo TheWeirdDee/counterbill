@@ -1,0 +1,86 @@
+{
+  "slug": "volume-dispute-aug-2026",
+  "caseId": "917bfcd3-9225-4b98-9515-70e7c614d0ba",
+  "stages": [
+    {
+      "label": "first",
+      "run": {
+        "kind": "start",
+        "status": "completed",
+        "calls": 10,
+        "error": null
+      },
+      "assessment": {
+        "v": 2,
+        "cls": "declared_volume_conflicts_with_bill",
+        "headline": "A comparison shows a volume difference between the bill and the packing list, while the contractual basis remains unproven.",
+        "reason": null
+      },
+      "diffs": {
+        "declared": "₦298,100"
+      },
+      "facts": 8,
+      "findings": 2,
+      "superseded": 2,
+      "draft": {
+        "v": 2
+      },
+      "agentsFailed": []
+    },
+    {
+      "label": "survey",
+      "run": {
+        "kind": "reassess",
+        "status": "completed",
+        "calls": 6,
+        "error": null
+      },
+      "assessment": {
+        "v": 3,
+        "cls": "measured_volume_differs_basis_unresolved",
+        "headline": "A survey supports a volume difference against the bill; the contractual rating basis is unresolved.",
+        "reason": "The addition of survey measurement data D4 (F16, C5-C8) and the package dimension calculation C9 show a physical measured volume of 0.75 CBM, shifting the comparison from the packing list estimate to a surveyed volume basis."
+      },
+      "diffs": {
+        "declared": "₦298,100",
+        "measured": "₦189,700"
+      },
+      "facts": 16,
+      "findings": 5,
+      "superseded": 3,
+      "draft": {
+        "v": 3
+      },
+      "agentsFailed": []
+    },
+    {
+      "label": "rate-sheet",
+      "run": {
+        "kind": "reassess",
+        "status": "partial",
+        "calls": 11,
+        "error": "Finished with limitations: case did not complete."
+      },
+      "assessment": {
+        "v": 4,
+        "cls": "contract_term_may_explain_bill",
+        "headline": "A contract term with a minimum chargeable volume may explain part of the bill, leaving a smaller discrepancy.",
+        "reason": "The introduction of contract term D5 with a 1.00 CBM minimum chargeable volume (F18) allows comparison against the billed volume (C10-C14)."
+      },
+      "diffs": {
+        "declared": "₦298,100",
+        "measured": "₦189,700",
+        "contract": "₦54,200"
+      },
+      "facts": 21,
+      "findings": 5,
+      "superseded": 9,
+      "draft": {
+        "v": 4
+      },
+      "agentsFailed": [
+        "case: invalid_model_output: findings[1] (package_sum_vs_reported): topics starting with volume:, package_ or missing: belong to the Billing Agent; use interpretation:* topics; findings[2] (volume:billed_vs_declared): topics starting with volume:, package_ or missing: belong to the Billing Agent; use interpretation:* topics; findings[3] (volume:billed_vs_measured): topics starting with volume:, package_ or missing: belong to "
+      ]
+    }
+  ]
+}
