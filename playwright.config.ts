@@ -26,6 +26,7 @@ export default defineConfig({
     env: {
       DATABASE_URL: DB,
       COUNTERBILL_INFERENCE: 'test',
+      COUNTERBILL_ALLOW_TEST_IN_PRODUCTION: '1',
       PUBLIC_APP_URL: `http://localhost:${PORT}`,
       SESSION_SECRET: 'e2e-session-secret',
       NEXT_DIST_DIR: '.next-e2e',
