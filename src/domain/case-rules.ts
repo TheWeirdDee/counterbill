@@ -320,3 +320,48 @@ export function contentHash(value: unknown): string {
 export function normalizeTopic(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9_:.-]+/g, '_').slice(0, 80);
 }
+
+/**
+ * Which assessment classifications the current calculations and contract reading actually support. This is a
+ * deterministic guard on the Case Agent: a reading may not claim a measurement difference before any measurement
+ * exists, or a contract explanation before a stated term has been calculated.
+ */
+export function allowedClassifications(
+  calcs: { topic: string; kind: string; output: string }[],
+  interpretation: { termsStatus: string } | null,
+): { allowed: string[]; reasons: Record<string, string> } {
+  const has = (prefix: string) => calcs.some((c) => c.topic.startsWith(prefix));
+  const termsFound = interpretation?.termsStatus === 'terms_found';
+  const anyComparison = calcs.some((c) => c.kind === 'charge_difference');
+  const reasons: Record<string, string> = {};
+  const rule = (cls: string, ok: boolean, why: string) => {
+    if (!ok) reasons[cls] = why;
+    return ok;
+  };
+  const all = [
+    ['insufficient_evidence', rule('insufficient_evidence', !anyComparison, 'a comparison has already been calculated, so the evidence is not "insufficient"')],
+    ['declared_volume_conflicts_with_bill', rule('declared_volume_conflicts_with_bill', has('billed_vs_declared:') && !has('billed_vs_measured:'), 'it applies only while the packing-list estimate is the only other volume (no measurement yet)')],
+    ['measured_volume_differs_basis_unresolved', rule('measured_volume_differs_basis_unresolved', has('billed_vs_measured:') && !(termsFound && has('billed_vs_contract_term:')), has('billed_vs_measured:') ? 'a stated contract term has been calculated, so the reading must account for it' : 'there is no calculation against a measured volume yet')],
+    ['contract_term_may_explain_bill', rule('contract_term_may_explain_bill', termsFound && has('billed_vs_contract_term:'), 'no stated contract term has been found and calculated yet')],
+    ['bill_consistent_with_records', rule('bill_consistent_with_records', calcs.some((c) => c.kind === 'volume_difference') && calcs.filter((c) => c.kind === 'volume_difference').every((c) => c.output === '0'), 'a calculated volume difference is not zero')],
+    ['conflicting_evidence_needs_input', true],
+  ] as const;
+  return { allowed: all.filter(([, ok]) => ok).map(([c]) => c), reasons };
+}
+
+const STOP = new Set('a an and are as at be by can do does for from has have how i if in is it its me my of on or our please clarify provide the their there this to we what when where which who whom why will with would you your'.split(' '));
+
+/** Content words of a question, for near-duplicate detection (case and punctuation insensitive). */
+export function questionWords(prompt: string): Set<string> {
+  return new Set(prompt.toLowerCase().replace(/[^a-z0-9.]+/g, ' ').split(' ').filter((w) => w && !STOP.has(w)));
+}
+
+/** Two questions ask the same thing when most of their content words coincide. */
+export function similarQuestions(a: string, b: string, threshold = 0.6): boolean {
+  const x = questionWords(a);
+  const y = questionWords(b);
+  if (!x.size || !y.size) return false;
+  let inter = 0;
+  for (const w of x) if (y.has(w)) inter++;
+  return inter / (x.size + y.size - inter) >= threshold || inter / Math.min(x.size, y.size) >= 0.85;
+}
