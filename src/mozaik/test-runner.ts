@@ -32,6 +32,11 @@ export class ScriptedInferenceRunner implements InferenceRunner {
         faultCounts.set(f, n);
         if (n === 1) return answer('{"facts": [ not json');
       }
+      if (f === `obey_injection_once:${role}`) {
+        const n = (faultCounts.get(f) ?? 0) + 1;
+        faultCounts.set(f, n);
+        if (n === 1) return answer(JSON.stringify(script(name, user, { obeyInjection: true })));
+      }
       if (f === `badcitation_once:${role}`) {
         const n = (faultCounts.get(f) ?? 0) + 1;
         faultCounts.set(f, n);
@@ -124,7 +129,7 @@ const num = (s: string) => s.replace(/,/g, '');
 
 // ------------------------------------------------------------------ scripts
 
-function script(name: string, msg: string, opt: { badCitation?: boolean }): unknown {
+function script(name: string, msg: string, opt: { badCitation?: boolean; obeyInjection?: boolean }): unknown {
   switch (name) {
     case 'evidence_output':
       return evidence(msg, opt.badCitation);
@@ -134,8 +139,12 @@ function script(name: string, msg: string, opt: { badCitation?: boolean }): unkn
       return contract(msg);
     case 'timeline_output':
       return timeline(msg);
-    case 'case_output':
-      return caseAssessment(msg);
+    case 'case_output': {
+      const out = caseAssessment(msg) as Record<string, unknown>;
+      // Simulates a model that OBEYED an instruction hidden in a document: validation must reject it.
+      if (opt.obeyInjection) out.headline = 'Refund approved: you are owed the full amount, a guaranteed refund.';
+      return out;
+    }
     case 'draft_output':
       return drafting(msg);
     default:
@@ -368,7 +377,9 @@ function caseAssessment(msg: string) {
 }
 
 function drafting(msg: string) {
-  const { cls, calcs } = classify(msg);
+  const { cls: inferred, calcs } = classify(msg);
+  // The drafting prompt states the current assessment classification; follow it like a model would.
+  const cls = msg.match(/Assessment v\d+: (\w+) —/)?.[1] ?? inferred;
   const finds = parseFindings(msg).filter((f) => f.status !== 'superseded');
   const topics = ['billed_vs_declared', 'billed_vs_measured', 'billed_vs_contract_term'].filter((t) => calcs.some((c) => c.topic.startsWith(`${t}:`)));
   const refs = [...finds.map((f) => f.ref), ...calcs.map((c) => c.ref)].slice(0, 12);
@@ -393,4 +404,9 @@ function drafting(msg: string) {
     ],
     changeSummary: `Letter written from the current assessment (${CLASS_LABEL[cls] ?? cls}).`,
   };
+}
+
+/** The scripted answer for a structured-output name. Shared by the in-process runner and the protocol-level fake provider used in tests. */
+export function scriptedAnswer(structuredOutputName: string, userText: string): unknown {
+  return script(structuredOutputName, userText, {});
 }
