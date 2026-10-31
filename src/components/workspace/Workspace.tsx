@@ -80,8 +80,8 @@ export function Workspace({ caseId, tab, base, isDemo }: { caseId: string; tab: 
                 Try again
               </button>
             )}
-            <Link className="btn" href={isDemo ? '/demo' : '/app'}>
-              {isDemo ? 'Sample cases' : 'Your cases'}
+            <Link className="btn" href={isDemo ? '/examples' : '/app'}>
+              {isDemo ? 'Example cases' : 'Your cases'}
             </Link>
           </div>
         </div>
@@ -124,7 +124,7 @@ export function Workspace({ caseId, tab, base, isDemo }: { caseId: string; tab: 
         <header className="ws-head">
           <div style={{ minWidth: 0 }}>
             <div className="row" style={{ gap: 8, marginBottom: 4 }}>
-              {isDemo ? <span className="chip chip-info chip-plain">Sample case</span> : null}
+              {isDemo ? <span className="chip chip-info chip-plain">Example</span> : null}
               {c.sampleLabel ? <span className="chip chip-plain">{c.sampleLabel}</span> : null}
             </div>
             <h1>{c.name}</h1>
@@ -134,15 +134,12 @@ export function Workspace({ caseId, tab, base, isDemo }: { caseId: string; tab: 
           </div>
           <div className="row">
             <StatusChip status={statusKey} label={statusLabel} />
-            <span className="muted" style={{ fontSize: '0.84rem' }}>
-              Saved
-            </span>
             {!isDemo ? (
               <button type="button" className="btn btn-sm" onClick={() => setOptions(true)}>
                 Case options
               </button>
             ) : (
-              <Link href={`/demo/${c.demoSlug}`} className="btn btn-sm">
+              <Link href={`/examples/${c.demoSlug}`} className="btn btn-sm">
                 Start a fresh run
               </Link>
             )}
@@ -195,13 +192,7 @@ export function Workspace({ caseId, tab, base, isDemo }: { caseId: string; tab: 
 
         <div id="tab-content">
           {tab === '' ? (
-            <div className="three-col">
-              <div className="col-evidence">
-                <EvidenceNavigator />
-              </div>
-              <Canvas />
-              <ActivityRail />
-            </div>
+            <OverviewColumns />
           ) : tab === 'evidence' ? (
             <EvidenceView />
           ) : tab === 'findings' ? (
@@ -253,6 +244,38 @@ export function Workspace({ caseId, tab, base, isDemo }: { caseId: string; tab: 
       <AddEvidenceDialog open={adding} onClose={() => setAdding(false)} />
       <CaseOptions open={options} onClose={() => setOptions(false)} />
     </WsProvider>
+  );
+}
+
+/** Three panes side by side on a wide screen; one pane at a time, chosen by a switcher, on a small one. */
+function OverviewColumns() {
+  const [pane, setPane] = useState<'findings' | 'evidence' | 'activity'>('findings');
+  const panes = [
+    { id: 'findings', label: 'Findings' },
+    { id: 'evidence', label: 'Evidence' },
+    { id: 'activity', label: 'Agents' },
+  ] as const;
+  return (
+    <>
+      <div className="pane-switch seg" role="group" aria-label="Overview section">
+        {panes.map((p) => (
+          <button key={p.id} type="button" aria-pressed={pane === p.id} onClick={() => setPane(p.id)}>
+            {p.label}
+          </button>
+        ))}
+      </div>
+      <div className="three-col" data-pane={pane}>
+        <div className="col-evidence">
+          <EvidenceNavigator />
+        </div>
+        <div className="col-canvas">
+          <Canvas />
+        </div>
+        <div className="col-activity">
+          <ActivityRail />
+        </div>
+      </div>
+    </>
   );
 }
 
