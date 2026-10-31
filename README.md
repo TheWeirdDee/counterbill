@@ -24,13 +24,30 @@ It does not give legal advice, decide who is right, guarantee refunds, or send a
 | Six Mozaik agents running concurrently in an isolated worker process per run, with durable events, replay and bounded retries | Built. Verified by integration tests that start **real worker processes** on real PostgreSQL. |
 | **Runs against a real language model** | **Done on Google Gemini's free tier** (`gemini-3.5-flash-lite` through Mozaik): both samples, the survey revision and the contract-minimum revision. Actual results, failures found and fixed, and the saved traces are in [`docs/LIVE_RESULTS.md`](docs/LIVE_RESULTS.md). This is a small number of runs on one small model, not a benchmark. |
 | Model calls in the automated tests | Either the labelled deterministic **test mode** runner (plugged into the same Mozaik runtime), a local **fake of the OpenAI Responses API**, or (opt-in, `RUN_LIVE_GEMINI=1`) the real Gemini API to prove the quota-exhausted path. The default suite makes no call to any provider. |
-| Hosted deployment | **Not deployed.** A `Dockerfile` and instructions are included; it needs an account the build could not create. |
+| Hosted deployment | **Not deployed yet.** Render Free + Neon Free is prepared (`render.yaml`, [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md)) and the container was built and exercised locally under the Render Free limits (measured results in that file). The hosted run, survey revision, export and restart recovery have **not** been run on a hosted URL, so nothing here claims it is live. |
 | Demo video | Not made. |
 
 Everything the UI says about being "TEST MODE" is literal: in test mode a scripted stand-in produces the agent outputs, and the
 UI, trace, evidence summary and exports say so. Test mode is never selected implicitly: with no key and no explicit flag,
 starting an investigation returns a setup error. The same is true of the model: Counterbill never substitutes a different
 model, a paid model or canned output when the configured one fails; it stops with a clear error and keeps the partial results.
+
+## Technology stack
+
+GitHub's language bar only counts source languages (TypeScript, CSS). The stack:
+
+| Layer | Used |
+|---|---|
+| Web app | Next.js 16 (App Router, Turbopack), React 19, TypeScript 6 |
+| Agents | [Mozaik](https://docs.jigjoy.ai/docs/runtime) 4.2 runtime: six concurrent agents, `runLoop`, semantic events, structured output |
+| Model | Google Gemini free tier (`gemini-3.5-flash-lite`) through Mozaik's Gemini adapter; OpenAI, Anthropic and DeepSeek adapters are wired but only Gemini was run for real |
+| Data | PostgreSQL (durable event log, work queue, files as `bytea`), `pg`; embedded PostgreSQL for local development |
+| Validation | Zod 4 for every model output, API body and event; exact-decimal arithmetic in `src/domain` |
+| Documents | `unpdf` text extraction, `pdf-lib` + Noto Sans for the exports |
+| Interface | Plain CSS design tokens, Inter Tight and Inter (self-hosted variable fonts), GSAP 3 for public-page motion |
+| Tests | Vitest (unit, integration with real worker processes), Playwright + axe-core (browser, accessibility) |
+| Hosting | Docker image; Render Free web service + Neon Free PostgreSQL |
+| CI | GitHub Actions (`.github/workflows/ci.yml`): typecheck, lint, unit, integration, browser, image build. Committed, not yet observed running on GitHub |
 
 ## The sample case (and how truthful it is)
 
@@ -46,7 +63,7 @@ what the report does not say, and what could not be verified (including a third 
 
 ## Quick start (local)
 
-Prerequisites: Node 20+, pnpm. No Docker needed.
+Prerequisites: Node 22 (20 also works) and pnpm 11 (`corepack enable` picks the pinned version). No Docker needed. Windows, macOS and Linux are supported for local development.
 
 ```bash
 pnpm install
@@ -174,7 +191,7 @@ disappears is failed with a recovery message and can be retried.
 - Agents react to each other through `sendEvent`: `fact.recorded` → Billing (and, for dated facts, Timeline); `contract.interpretation` → Billing and Case; `calculation.completed` → Case; `assessment.updated` → Drafting. Event types and payload schemas: `src/domain/schemas.ts`.
 - **Persist, then publish**: `src/mozaik/events.ts` writes each event to `case_events` (unique idempotency key) and only then calls `sendEvent`. Duplicates are dropped and counted. The browser stream (`/api/cases/:id/events`) reads the same table, so what the UI shows is what agents reacted to.
 - **No stale overwrite**: every result is committed in a transaction that first locks the case row and compares the evidence revision; an older result is discarded with an event. New evidence cancels the now-obsolete run.
-- **Bounded**: two attempts per task (validation errors are fed back), `MAX_AGENT_REVISIONS` passes per agent per run, `MAX_MODEL_CALLS_PER_RUN`, a per-call timeout, and a Case-Agent debounce of 1.8 s (a documented, intentional stabilisation window).
+- **Bounded**: up to three attempts per task (`MAX_TASK_ATTEMPTS`) (validation errors are fed back), `MAX_AGENT_REVISIONS` passes per agent per run, `MAX_MODEL_CALLS_PER_RUN`, a per-call timeout, and a Case-Agent debounce of 1.8 s (a documented, intentional stabilisation window).
 - **Failure capture**: Mozaik's `runLoop` is fire-and-forget and does not surface a failed model call, so `src/mozaik/instrumented-runner.ts` wraps the inference runner to report failures and enforce the budget. Mozaik Cloud telemetry is disabled in workers.
 - **Trace**: `src/mozaik/trace.ts` subscribes to Mozaik's own `message_received.started`, `inference.started/completed`, `function_call.*`, `model.answer` events and stores a sanitised record (no prompts, text or answers).
 
@@ -195,23 +212,19 @@ Public: `/`, `/examples`, `/examples/[slug]` (sources, disclosure, launch), `/ex
 Signed in: `/app`, `/app/new`, `/app/cases/[id]/[evidence|findings|timeline|letter|activity]`, `/app/settings`.
 API (typed errors `{code, message, retryable}`): `/api/cases`, `/api/cases/:id` (+ `documents`, `facts`, `start`, `reassess`, `retry`, `cancel`, `findings/:ref/challenge`, `questions/:ref/answer`, `letter`, `letter/reconcile`, `exports`, `events` (SSE), `trace`), `/api/demo/cases`, `/api/demo/cases/:slug/run`, `/api/demo/runs/:runId/{events,trace}`, `/api/auth/*`, `/api/account`, `/api/health`.
 
-## Trace evidence (from a real run, in test mode)
+## Trace evidence (a real Gemini run)
 
-Excerpt of [`docs/trace-example-test-mode.json`](docs/trace-example-test-mode.json), downloaded from `/api/cases/:id/trace` after a sample run. **This run used the labelled test-mode runner, not a language model**, so the timings are the scripted delays plus real orchestration overhead; a live run will differ. Times are UTC. The Mozaik loop ids and timestamps are observed values.
+From [`docs/traces/live-gemini-volume-dispute-final.json`](docs/traces/live-gemini-volume-dispute-final.json), taken from `/api/cases/:id/trace` after a real run on `gemini-3.5-flash-lite` (UTC, 31 October 2026). A trace records Mozaik's own runtime events, timings, token counts, tool calls and validation outcomes. **It does not include prompts, document text or the model's answers**; what the model produced is visible as the stored facts, findings, calculations and letter, each with its citations.
 
 ```
-case.started                    08:23:32.113   one event, four handlers
-agent     mozaik loop   started       finished
-evidence  75c28919      08:23:32.116  08:23:33.801
-contract  a247fc3d      08:23:32.116  08:23:33.913
-timeline  ffdbdb4b      08:23:32.116  08:23:33.590
-billing   79b9fa91      08:23:32.127  08:23:33.308   first pass: no facts yet, reports inputs missing
-billing   46bc3158      08:23:33.815  08:23:34.988   re-run because evidence emitted fact.recorded (08:23:33.808)
-case      358bc672      08:23:36.812  08:23:38.282   after calculation.completed (08:23:34.991) + 1.8 s stabilisation
-assessment.updated 08:23:38.291 -> draft.updated 08:23:39.587 -> run.completed 08:23:40.819
+first wave, one case.started event          loop start     inference started   finished
+evidence   10:01:38.466                      -> 10:01:42.839   (inference 10:01:38.833 .. 10:01:42.793)
+contract   10:01:38.467                      -> 10:01:40.824   (inference 10:01:38.836 .. 10:01:40.791)
+timeline   10:01:38.467                      -> 10:01:40.355   (inference 10:01:38.757 .. 10:01:40.204)
+billing    10:01:38.482                      -> 10:01:40.559   (inference 10:01:38.767 .. 10:01:40.246)
 ```
 
-In the later survey step only the agents the new evidence affects ran (see the `reassess` run in the same file). The Activity tab shows the same data as a chart with the computed overlaps.
+The four first-wave agents started within 16 ms of each other and their model calls overlapped. A later `case` pass failed validation, was retried with the reasons fed back, and then completed (`case 10:01:42.650 failed`, then `10:01:44.936 completed`): the retry is real and visible. The test-mode example trace (`docs/trace-example-test-mode.json`) is kept only to show the event shapes without a provider.
 
 ![Mobile workspace](docs/screenshots/workspace-mobile.png)
 ![Letter studio](docs/screenshots/letter.png)
@@ -246,20 +259,16 @@ Every fact stores its document, page/span, extraction method, provenance (`extra
 - Document storage is PostgreSQL `bytea` (fine for ≤15 MB files); no Supabase/S3 driver, no row-level security (isolation is enforced and tested in the API layer).
 - Agent outputs depend on the model following the schemas; the validation gates reject bad output but cannot make a weak model good. A bad model produces failed agents and "needs input", not silent errors.
 - Sample 3 (demurrage) is absent for lack of a verifiable source. Exports are PDF + CSV (no ZIP/XLSX). No shareable read-only link. No analytics.
-- The browser tests and screenshots run against a production build (`next build` + `next start`) on the development machine only; nothing has run behind a real hosting proxy.
+- The browser tests and screenshots run against a production build on the development machine. The container was exercised behind a local reverse proxy (see `docs/DEPLOY_RENDER.md`); nothing has run on a hosted URL yet.
 
-## Hosting requirements
+## Hosting
 
-You need: **PostgreSQL**, a place to run **two long-lived processes** (web and worker; `pnpm start:all` runs both, the `Dockerfile` does the same), outbound HTTPS to the model provider, and an SSE-friendly proxy (no response buffering; `X-Accel-Buffering: no` is set). Serverless platforms that kill background processes are not suitable for the worker. Set `DATABASE_URL`, the provider key, `MOZAIK_MODEL`, `PUBLIC_APP_URL`, a long random `SESSION_SECRET`, and `NODE_ENV=production` (secure cookies). Migrations run when the worker boots (or `pnpm db:migrate`). Use a modest `DEMO_RUNS_PER_IP_PER_HOUR` on a public deployment.
+Needs: PostgreSQL, one long-running process that runs both the web app and the worker, outbound HTTPS to the model provider, and a proxy that does not buffer server-sent events (`X-Accel-Buffering: no` is set). Serverless platforms that kill background processes cannot run the worker.
 
-**Existing accounts inspected (nothing was created or changed):** the Vercel CLI on this machine is signed in, but Vercel's serverless model cannot host the long-running worker (it spawns one process per investigation) and has no PostgreSQL, so it is unsuitable for this app as built. The Railway CLI session has expired (`railway login` is needed). No other hosting account was found. So nothing is deployed and nothing claims to be live.
+The prepared target is **Render Free (one Web Service, Docker) + Neon Free PostgreSQL**. [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md) has the exact steps, the measurements from running the image under the Render Free limits, and the checklist for the hosted run. Variables: `DATABASE_URL`, `PUBLIC_APP_URL`, `GEMINI_API_KEY`, `SESSION_SECRET` are secrets set in the host's dashboard, never in git; `COUNTERBILL_INFERENCE` must stay unset (a production build refuses test mode).
 
-### Manual steps still required
-
-1. Your key is already in `.env` for local runs. For any other machine or host, set `GEMINI_API_KEY` (and `MOZAIK_MODEL`, checked with `pnpm gemini:models`) in that host's private environment settings, never in git. Free-tier access differs per account.
-2. Create the hosting resources (database, one container) and deploy; then exercise: sample run, upload persistence across a restart, SSE through the proxy.
-3. Publish the repository and submit (this was deliberately not done on your behalf).
+Health: `/api/health` is liveness (200 while the database answers; the body says whether the app is actually ready and why not). `/api/ready` is strict: 503 unless the database, a worker heartbeat from the last 15 s and a model credential are all present.
 
 ## Repository map
 
-`src/domain` (arithmetic, rules, citations, letter, schemas) · `src/mozaik` (runtime, agents, events, tasks, trace, test runner) · `src/db` (schema access) · `src/server` (auth, access, runs, documents, demo) · `src/docs` (upload validation/parsing) · `src/exports` (PDFs) · `src/app`, `src/components` (UI + API) · `workers/` · `db/migrations` · `fixtures/` (labelled samples) · `tests/` · `docs/` (`SOURCE_VERIFICATION`, `DECISIONS`, `SUBMISSION`, `TEST_RESULTS`, `trace-example-test-mode.json`).
+`src/domain` (arithmetic, rules, citations, letter, schemas) · `src/mozaik` (runtime, agents, events, tasks, trace, test runner) · `src/db` (schema access) · `src/server` (auth, access, runs, documents, demo) · `src/docs` (upload validation/parsing) · `src/exports` (PDFs) · `src/app`, `src/components` (UI + API) · `workers/` · `db/migrations` · `fixtures/` (labelled samples) · `tests/` · `docs/` (`SOURCE_VERIFICATION`, `DECISIONS`, `DEPLOY_RENDER`, `FRONTEND_REDESIGN`, `LIVE_RESULTS`, `TEST_RESULTS`, `SUBMISSION`, `traces/`).
