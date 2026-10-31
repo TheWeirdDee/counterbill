@@ -162,6 +162,18 @@ test.describe('public pages: fonts, widths, contrast', () => {
     await expect(page.getByRole('button', { name: 'Open navigation' })).toHaveAttribute('aria-expanded', 'false');
   });
 
+  test('mobile menu: a link to a section of the same page closes it and releases scrolling', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Open navigation' }).click();
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'How it works' }).click();
+    await expect(page).toHaveURL(/#how-it-works$/);
+    await expect(page.getByRole('button', { name: 'Open navigation' })).toHaveAttribute('aria-expanded', 'false');
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+    await expect(page.getByRole('heading', { name: /From a stack of papers/ })).toBeInViewport();
+  });
+
   test('reduced motion: hero content is visible immediately', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
