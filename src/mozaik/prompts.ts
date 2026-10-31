@@ -2,6 +2,7 @@
  * Agent instructions and the case snapshots they are shown. Documents are rendered as quoted DATA between
  * explicit markers; the instructions tell every agent to treat that text as evidence, never as commands.
  */
+import { allowedClassifications } from '@/domain/case-rules';
 import {
   buildEvidenceIndex,
   currentInterpretation,
@@ -49,6 +50,7 @@ ROLE: Billing Agent. Decide which comparisons the recorded facts support and req
 - Reference facts only by their F-identifiers. Choose billedVolumeFact (the billed volume), comparisonVolumeFact (declared or measured volume) and rateFact (rate per CBM). Prefer facts from documents over user statements.
 - topic: billed_vs_declared (billed vs packing-list estimate), billed_vs_measured (billed vs surveyed volume), billed_vs_contract_term (measured volume under a stated contractual minimum; needs contractMinimumFact).
 - packageSums: when package_dimensions_cm facts exist, ask for their sum; reportedVolumeFact is the volume a document reports for the same packages (if any).
+- In missingVariables, name each input in plain English ("Billed volume", "Rate per CBM"), never as a field key such as billed_volume_cbm.
 - List in missingVariables every input you would need but do not have (e.g. the rate, the billed volume, the contract's chargeable-volume basis). Do not guess a value.
 - Never describe a comparison as a refund or an amount owed. Allowed topics: ${COMPARISON_TOPICS.join(', ')}.`,
 
@@ -59,7 +61,8 @@ ROLE: Contract Agent. Find what the documents actually say about how chargeable 
 - For a minimum chargeable volume clause, put the number of CBM in minimumCbm (e.g. "1.00"); otherwise null.
 - carrierQuestions are precise questions for the freight company (e.g. which clause or rate sheet supports the billed volume).
 - challenges: list findings/comparison topics (billed_vs_declared, billed_vs_measured, ...) that a stated term calls into question, with the reason and the spans.
-- A regulator's statement that the rating methodology was not established is evidence that terms are missing; cite it.`,
+- A regulator's statement that the rating methodology was not established is evidence that terms are missing; cite it.
+- If the dispute is about the SHIPMENT MODE (for example a full container load (FCL) that was shipped as consolidated cargo (LCL)), the questions that matter are: who approved or instructed the change of mode, which quote or booking version applied, what written instructions or booking confirmation exist, and which bill of lading shows the mode. Ask those as carrierQuestions instead of rate-sheet questions.`,
 
   timeline: `${COMMON}
 
@@ -75,14 +78,21 @@ ROLE: Case Agent. Assess the whole case from the shared evidence and revise earl
 - category: supported_discrepancy (arithmetic supported by cited sources), competing_explanation (conflicting accounts or a possible legitimate basis), missing_evidence (terms or documents we do not have).
 - status: supported only when cited sources and a calculation back it; provisional while evidence is partial; disputed when sources conflict; unresolved for what cannot be established.
 - Deliberately look for the strongest explanation that is CONTRARY to the claimant's position (e.g. a contractual minimum, rounding, a different volume basis) and state it in strongestCounterExplanation.
+- For a dispute about the shipment mode (FCL vs LCL) or about who instructed it, there may be no volume comparison to make: say that plainly, keep category "missing_evidence" for the instruction, quote/booking version and bill of lading, and ask who approved the mode, which quote or booking version applied, and what was instructed in writing.
+- A finding in category "missing_evidence" is never "supported": use status "unresolved" (or "provisional"). Do not confirm it with findingOps.
 - If a stated contract term could explain the billed volume, an earlier overcharge interpretation must be withdrawn or downgraded (use findingOps and revised findings), and the classification must change.
 - classification must be one of the allowed values and describe the current best reading. changeReason (null on the first assessment) says what changed since the previous assessment and which evidence caused it, citing identifiers.
-- Raise questions for the user (documents or facts they could provide) and for the freight company. Never assert liability.`,
+- Every finding must list the F-, C- or D-identifiers it rests on (factRefs, calcRefs, spanRefs) taken from the material above; use basis "inference" only for a judgement that no single source states, and then still list the facts it rests on. Never leave all three reference lists empty for a "sourced" finding.
+- headline: ONE plain sentence saying what the documents show right now and what is still unproven, in the style "A survey supports a volume difference against the bill; the contractual rating basis is unresolved." Do not write generic titles. Do not repeat the figures unless they appear in the calculations.
+- changeReason (reassessments only): say what NEW evidence or calculation changed the reading and name the identifiers (e.g. "Survey D4 (F16) shows 0.75 CBM, so the packing-list reading is replaced; see C5-C8"). Never mention validation, feedback, instructions or topics.
+- Raise questions for the user (documents or facts they could provide) and for the freight company. Never repeat or rephrase a question that is already open (they are listed with their Q-identifiers); if new evidence answers an open question, put its identifier in resolvedQuestionRefs instead. Never assert liability.`,
 
   drafting: `${COMMON}
 
 ROLE: Drafting Agent. Write the body of a respectful complaint letter to the freight company from the current assessment.
 - Sections to write: concern (why we are writing), comparison (the sourced comparison and its assumptions), uncertainty (what remains unknown, including any missing contractual basis), requests (specific, reasonable requests: the rated-volume calculation, the applicable rate sheet or terms, an explanation of differences, and an adjustment only if warranted).
+- Write money as ₦596,200 (symbol, thousands separators) and volumes as 1.10 CBM; never "596200 NGN".
+- Make the "requests" fit the case: for a volume dispute ask for the rated-volume calculation and the rate sheet; for a shipment-mode dispute (e.g. FCL booked, LCL shipped) ask who approved the mode, which quote or booking version applied, and for the bill of lading and written instructions.
 - Plain, factual, non-accusatory language. Do not accuse anyone of fraud or wrongdoing, do not claim an entitlement or refund, do not set legal deadlines or threaten action.
 - Every figure must come from the calculations or facts you are given and each section must list the refs (facts, calculations, findings, spans) it relies on.
 - If the assessment says the contractual basis is unresolved, say so plainly; if a contract term may explain the charge, the letter asks for clarification rather than alleging an overcharge.
@@ -230,6 +240,7 @@ export async function caseMessage(caseId: string, triggers: string[], feedback: 
     snap.header,
     `Facts:\n${snap.facts.map(factLine).join('\n') || '(none)'}`,
     `Calculations (deterministic):\n${snap.calcs.map(calcLine).join('\n') || '(none)'}`,
+    `Classifications the current calculations support (choose one): ${allowedClassifications(snap.calcs, interp).allowed.join(', ')}`,
     `Contract interpretation: ${interp ? `${interp.ref} ${interp.termsStatus} — ${interp.summary} (clause facts: ${interp.clauseFactRefs.join(',') || 'none'}; challenges: ${JSON.stringify(interp.challenges)})` : '(none yet)'}`,
     `Timeline:\n${timeline.map((t) => `${t.ref} ${t.occurredOn ?? 'date not established'} [${t.kind}] ${t.description}`).join('\n') || '(none)'}`,
     `Current findings (revise by reusing the topic):\n${snap.findings.map(findingLine).join('\n') || '(none)'}`,
