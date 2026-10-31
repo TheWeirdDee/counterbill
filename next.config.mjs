@@ -4,6 +4,13 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   serverExternalPackages: ['pg', '@mozaik-ai/core', 'unpdf', 'pdf-lib', '@pdf-lib/fontkit', 'embedded-postgres'],
+  // The product used to call these pages "demo". Old links keep working.
+  async redirects() {
+    return [
+      { source: '/demo', destination: '/examples', permanent: true },
+      { source: '/demo/:path*', destination: '/examples/:path*', permanent: true },
+    ];
+  },
   async headers() {
     return [
       {
