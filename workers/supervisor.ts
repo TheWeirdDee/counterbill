@@ -10,7 +10,7 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { migrate } from '../src/db/migrate';
-import { closePool, one, query } from '../src/db/pool';
+import { closePool, one } from '../src/db/pool';
 import { parsePendingDocuments } from '../src/server/documents';
 import { failRun, reapStaleRuns } from '../src/server/runs';
 
