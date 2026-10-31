@@ -1,0 +1,31 @@
+{
+  "slug": "cargo-classification-jun-2026",
+  "caseId": "f3e0ab45-5fdc-4402-b895-635c8ed7b7c3",
+  "stages": [
+    {
+      "label": "first",
+      "run": {
+        "kind": "start",
+        "status": "partial",
+        "calls": 8,
+        "error": "Finished with limitations: evidence did not complete."
+      },
+      "assessment": {
+        "v": 1,
+        "cls": "insufficient_evidence",
+        "headline": "A published regulatory report notes a cargo conversion dispute, but contract terms and billed volumes are absent from the evidence.",
+        "reason": null
+      },
+      "diffs": {},
+      "facts": 0,
+      "findings": 3,
+      "superseded": 0,
+      "draft": {
+        "v": 1
+      },
+      "agentsFailed": [
+        "evidence: invalid_model_output: The output did not match the required schema: [\n  {\n    \"origin\": \"array\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"facts\",\n      5,\n      \"spanRefs\"\n    ],\n    \"message\": \"Too small: expected array to have >=1 items\"\n  },\n  {\n    \"origin\": \"array\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"in"
+      ]
+    }
+  ]
+}
