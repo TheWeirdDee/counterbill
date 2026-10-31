@@ -44,6 +44,8 @@ export interface DemoCase {
   /** Evidence the visitor can add during the run to trigger a reassessment. */
   steps: DemoStep[];
   publicFacts: string[];
+  /** Headline figures from the published report, for the examples listing. */
+  figures: { value: string; label: string }[];
 }
 
 const RECON = 'Reconstructed for demonstration; not an original invoice';
@@ -55,14 +57,14 @@ export const DEMO_CASES: DemoCase[] = [
     title: 'A volume charge that does not match the packing list',
     summary:
       'Six packages from China to Lagos were billed at 1.10 CBM against a packing-list estimate of 0.55 CBM. A published survey later measured 0.75 CBM. The regulator did not establish how the carrier rated the 1.10 CBM.',
-    caseName: 'Disputed LCL volume charge — China to Lagos (sample)',
+    caseName: 'Disputed LCL volume charge — China to Lagos (example)',
     claimant: 'Import with Martha (as named in the NSC report)',
     counterparty: '3 Brothers Cargo (as named in the NSC report)',
     origin: 'China',
     destination: 'Lagos, Nigeria',
     shipmentClass: 'LCL',
     currency: 'NGN',
-    sampleLabel: 'Sample based on a published report — Nigerian Shippers’ Council, 31 August 2026',
+    sampleLabel: 'Based on a published report · Nigerian Shippers’ Council, 31 August 2026',
     folder: 'public-case-aug-2026',
     concernFile: 'user-concern.txt',
     source: {
@@ -91,6 +93,11 @@ export const DEMO_CASES: DemoCase[] = [
         doc: { file: 'hypothetical-rate-sheet.txt', kind: 'quote', sourceClass: 'hypothetical_demo', label: 'Hypothetical illustration; not part of the published report', displayName: 'Rate sheet (hypothetical illustration).txt' },
       },
     ],
+    figures: [
+      { value: '1.10 CBM', label: 'billed' },
+      { value: '0.75 CBM', label: 'surveyed' },
+      { value: '₦189,700', label: 'difference under review' },
+    ],
     publicFacts: [
       'Six-package LCL consignment billed at 1.10 CBM; packing list estimated 0.55 CBM.',
       'Freight rate ₦542,000 per CBM; billed ₦596,200; ₦406,500 at the surveyed 0.75 CBM; ₦189,700 difference.',
@@ -103,14 +110,14 @@ export const DEMO_CASES: DemoCase[] = [
     title: 'A full container that arrived as groupage cargo',
     summary:
       'An importer says he booked a dedicated 40ft container (FCL) but the cargo was consolidated (LCL). The regulator found a communication breakdown and set a flat settlement. This sample asks who approved the format and which quote applied.',
-    caseName: 'FCL booked, shipped as LCL — China to Lagos (sample)',
+    caseName: 'FCL booked, shipped as LCL — China to Lagos (example)',
     claimant: 'Multi Graphic Advertising Company (as named in the NSC report)',
     counterparty: 'Jecmek Divine International Logistics (as named in the NSC report)',
     origin: 'China',
     destination: 'Lagos, Nigeria',
     shipmentClass: 'LCL',
     currency: 'NGN',
-    sampleLabel: 'Sample based on a published report — Nigerian Shippers’ Council, 23 June 2026',
+    sampleLabel: 'Based on a published report · Nigerian Shippers’ Council, 23 June 2026',
     folder: 'cargo-classification-jun-2026',
     concernFile: 'user-concern.txt',
     source: {
@@ -125,6 +132,11 @@ export const DEMO_CASES: DemoCase[] = [
       { file: 'nsc-report-excerpt.txt', kind: 'other', sourceClass: 'official_public_report', label: 'Source-derived excerpt of a published regulator report', url: 'https://shipperscouncil.gov.ng/cargo-conversion-dispute-nsc-resolves-freight-and-classification-row-between-importer-and-logistics-firm/', published: '23 June 2026', displayName: 'NSC report excerpt — cargo conversion.txt' },
     ],
     steps: [],
+    figures: [
+      { value: '≈ 50 CBM', label: 'beach umbrellas' },
+      { value: '₦27,132,000', label: 'charges faced' },
+      { value: '₦19,000,000', label: 'flat settlement set' },
+    ],
     publicFacts: [
       'Roughly 50 CBM of beach umbrellas; the importer says a dedicated 40ft FCL was contracted.',
       'The cargo was handled as consolidated LCL; charges faced were ₦27,132,000.',
@@ -166,7 +178,7 @@ export async function createDemoCaseInstance(slug: string, demoTokenHash: string
     const doc = await addDocument(c.id, { filename: d.displayName, bytes: readFixture(demo.folder, d.file), kind: d.kind, sourceClass: d.sourceClass, sourceLabel: d.label, sourceUrl: d.url ?? null, sourcePublished: d.published ?? null });
     await parseQueuedDocument(c.id, doc.ref);
   }
-  const stmt = await addDocument(c.id, { filename: 'Your statement (sample).txt', bytes: concern, kind: 'user_statement', sourceClass: 'user_statement', sourceLabel: 'Sample user statement written for the demonstration' });
+  const stmt = await addDocument(c.id, { filename: 'Your statement (example).txt', bytes: concern, kind: 'user_statement', sourceClass: 'user_statement', sourceLabel: 'Sample user statement written for the demonstration' });
   await parseQueuedDocument(c.id, stmt.ref);
   return (await getCase(c.id))!;
 }
