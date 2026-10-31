@@ -165,6 +165,27 @@ Public: `/`, `/demo`, `/demo/[slug]` (disclosure + launch), `/demo/[slug]/[caseI
 Signed in: `/app`, `/app/new`, `/app/cases/[id]/[evidence|findings|timeline|letter|activity]`, `/app/settings`.
 API (typed errors `{code, message, retryable}`): `/api/cases`, `/api/cases/:id` (+ `documents`, `facts`, `start`, `reassess`, `retry`, `cancel`, `findings/:ref/challenge`, `questions/:ref/answer`, `letter`, `letter/reconcile`, `exports`, `events` (SSE), `trace`), `/api/demo/cases`, `/api/demo/cases/:slug/run`, `/api/demo/runs/:runId/{events,trace}`, `/api/auth/*`, `/api/account`, `/api/health`.
 
+## Trace evidence (from a real run, in test mode)
+
+Excerpt of [`docs/trace-example-test-mode.json`](docs/trace-example-test-mode.json), downloaded from `/api/cases/:id/trace` after a sample run. **This run used the labelled test-mode runner, not a language model**, so the timings are the scripted delays plus real orchestration overhead; a live run will differ. Times are UTC. The Mozaik loop ids and timestamps are observed values.
+
+```
+case.started                    08:23:32.113   one event, four handlers
+agent     mozaik loop   started       finished
+evidence  75c28919      08:23:32.116  08:23:33.801
+contract  a247fc3d      08:23:32.116  08:23:33.913
+timeline  ffdbdb4b      08:23:32.116  08:23:33.590
+billing   79b9fa91      08:23:32.127  08:23:33.308   first pass: no facts yet, reports inputs missing
+billing   46bc3158      08:23:33.815  08:23:34.988   re-run because evidence emitted fact.recorded (08:23:33.808)
+case      358bc672      08:23:36.812  08:23:38.282   after calculation.completed (08:23:34.991) + 1.8 s stabilisation
+assessment.updated 08:23:38.291 -> draft.updated 08:23:39.587 -> run.completed 08:23:40.819
+```
+
+In the later survey step only the agents the new evidence affects ran (see the `reassess` run in the same file). The Activity tab shows the same data as a chart with the computed overlaps.
+
+![Mobile workspace](docs/screenshots/workspace-mobile.png)
+![Letter studio](docs/screenshots/letter.png)
+
 ## Tests and results
 
 Run on 31 October 2026 on the development machine (Windows 11, Node 24, PostgreSQL 18 embedded). Commands and outcomes are in
@@ -191,11 +212,13 @@ Every fact stores its document, page/span, extraction method, provenance (`extra
 - Document storage is PostgreSQL `bytea` (fine for ≤15 MB files); no Supabase/S3 driver, no row-level security (isolation is enforced and tested in the API layer).
 - Agent outputs depend on the model following the schemas; the validation gates reject bad output but cannot make a weak model good. A bad model produces failed agents and "needs input", not silent errors.
 - Sample 3 (demurrage) is absent for lack of a verifiable source. Exports are PDF + CSV (no ZIP/XLSX). No shareable read-only link. No analytics.
-- Dev mode only has been exercised; `pnpm build` is recorded in `docs/TEST_RESULTS.md`.
+- The browser tests and screenshots run against a production build (`next build` + `next start`) on the development machine only; nothing has run behind a real hosting proxy.
 
 ## Hosting requirements
 
 You need: **PostgreSQL**, a place to run **two long-lived processes** (web and worker; `pnpm start:all` runs both, the `Dockerfile` does the same), outbound HTTPS to the model provider, and an SSE-friendly proxy (no response buffering; `X-Accel-Buffering: no` is set). Serverless platforms that kill background processes are not suitable for the worker. Set `DATABASE_URL`, the provider key, `MOZAIK_MODEL`, `PUBLIC_APP_URL`, a long random `SESSION_SECRET`, and `NODE_ENV=production` (secure cookies). Migrations run when the worker boots (or `pnpm db:migrate`). Use a modest `DEMO_RUNS_PER_IP_PER_HOUR` on a public deployment.
+
+**Existing accounts inspected (nothing was created or changed):** the Vercel CLI on this machine is signed in, but Vercel's serverless model cannot host the long-running worker (it spawns one process per investigation) and has no PostgreSQL, so it is unsuitable for this app as built. The Railway CLI session has expired (`railway login` is needed). No other hosting account was found. So nothing is deployed and nothing claims to be live.
 
 ### Manual steps still required
 
