@@ -57,41 +57,54 @@ async function runEvidence(documentRefs: string[], triggerEventId: string, label
       const docs = new Map((await listDocuments(caseId, db)).map((d) => [d.ref, d]));
       const problems: string[] = [];
       const clean: (EvidenceOutput['facts'][number] & { value: string; unit: string | null; currency: string | null })[] = [];
+      const dropped: string[] = [];
 
+      // Per-fact verification: a fact that cannot be tied to a real span and a verbatim quote is never stored, but it
+      // does not take the verified facts down with it. The count is recorded on the task so nothing is hidden.
       out.facts.forEach((f, i) => {
         const where = `facts[${i}] (${f.key})`;
-        requireKnownRefs(f.spanRefs, index, where, problems);
-        requireQuote(f.quote, f.spanRefs, index, where, problems);
+        const local: string[] = [];
+        if (!f.spanRefs.length) local.push(`${where}: no span cited`);
+        else {
+          requireKnownRefs(f.spanRefs, index, where, local);
+          if (!local.length) requireQuote(f.quote, f.spanRefs, index, where, local);
+        }
         let value = f.value.trim();
         let unit = f.unit?.trim() || null;
         let currency = f.currency?.trim().toUpperCase() || null;
-        try {
-          if (f.key !== 'rate_per_cbm' && /_cbm$/.test(f.key)) {
-            unit = unit && /^(cbm|m3|m³|cm3|cm³)$/i.test(unit) ? unit : 'CBM';
-            value = decimalToString(toCbm(parseDecimal(value), unit));
-            unit = 'CBM';
-          } else if (f.key === 'rate_per_cbm' || /_amount$/.test(f.key)) {
-            value = decimalToString(parseDecimal(value));
-            unit = f.key === 'rate_per_cbm' ? 'per CBM' : unit;
-            currency = currency ?? currencyFromQuote(f.quote);
-            if (!currency) problems.push(`${where}: money values need a 3-letter currency`);
-          } else if (f.key === 'package_count') {
-            const n = tryParseDecimal(value);
-            if (!n || !n.isInteger() || n.lte(0)) problems.push(`${where}: package_count must be a positive whole number`);
-            else value = decimalToString(n);
-          } else if (f.key === 'package_dimensions_cm') {
-            const d = parseDimensions(value);
-            if (!d) problems.push(`${where}: package_dimensions_cm must look like "120x34x22"`);
-            else value = `${d.l}x${d.w}x${d.h}`;
-            unit = 'cm';
+        if (!local.length) {
+          try {
+            if (f.key !== 'rate_per_cbm' && /_cbm$/.test(f.key)) {
+              unit = unit && /^(cbm|m3|m³|cm3|cm³)$/i.test(unit) ? unit : 'CBM';
+              value = decimalToString(toCbm(parseDecimal(value), unit));
+              unit = 'CBM';
+            } else if (f.key === 'rate_per_cbm' || /_amount$/.test(f.key)) {
+              value = decimalToString(parseDecimal(value));
+              unit = f.key === 'rate_per_cbm' ? 'per CBM' : unit;
+              currency = currency ?? currencyFromQuote(f.quote);
+              if (!currency) local.push(`${where}: money values need a 3-letter currency`);
+            } else if (f.key === 'package_count') {
+              const n = tryParseDecimal(value);
+              if (!n || !n.isInteger() || n.lte(0)) local.push(`${where}: package_count must be a positive whole number`);
+              else value = decimalToString(n);
+            } else if (f.key === 'package_dimensions_cm') {
+              const d = parseDimensions(value);
+              if (!d) local.push(`${where}: package_dimensions_cm must look like "120x34x22"`);
+              else value = `${d.l}x${d.w}x${d.h}`;
+              unit = 'cm';
+            }
+          } catch (err) {
+            local.push(`${where}: ${(err as Error).message}`);
           }
-        } catch (e) {
-          problems.push(`${where}: ${(e as Error).message}`);
         }
-        clean.push({ ...f, value, unit, currency });
+        if (local.length) {
+          problems.push(...local);
+          dropped.push(local[0]);
+        } else clean.push({ ...f, value, unit, currency });
       });
-      out.ambiguities.forEach((a, i) => requireKnownRefs(a.spanRefs, index, `ambiguities[${i}]`, problems));
-      finish(problems);
+      // Only an answer with NO verifiable fact is rejected (and retried with the reasons); otherwise keep what verified.
+      if (out.facts.length > 0 && clean.length === 0) finish(problems);
+      const goodAmbiguities = out.ambiguities.filter((a) => a.spanRefs.every((r) => index.spans.has(r)));
 
       const created: FactRow[] = [];
       for (const f of clean) {
@@ -122,15 +135,17 @@ async function runEvidence(documentRefs: string[], triggerEventId: string, label
         const r = await addQuestion(db, caseId, q, { raisedBy: 'evidence', runId, evidenceRevision: revision });
         if (r.inserted) questions.push(r.question);
       }
-      for (const a of out.ambiguities) {
+      for (const a of goodAmbiguities) {
         const r = await addQuestion(db, caseId, { audience: 'user', prompt: `Please clarify: ${a.description}`, reason: 'The documents are ambiguous on this point.' }, { raisedBy: 'evidence', runId, evidenceRevision: revision });
         if (r.inserted) questions.push(r.question);
       }
       return {
         result: { created, questions },
-        summary: created.length
-          ? `Recorded ${created.length} cited fact${created.length === 1 ? '' : 's'}${questions.length ? ` and raised ${questions.length} question${questions.length === 1 ? '' : 's'}` : ''}.`
-          : 'No new facts beyond those already recorded.',
+        summary:
+          (created.length
+            ? `Recorded ${created.length} cited fact${created.length === 1 ? '' : 's'}${questions.length ? ` and raised ${questions.length} question${questions.length === 1 ? '' : 's'}` : ''}.`
+            : 'No new facts beyond those already recorded.') +
+          (dropped.length ? ` Dropped ${dropped.length} fact${dropped.length === 1 ? '' : 's'} that could not be verified against the documents (${dropped[0].slice(0, 90)}).` : ''),
       };
     },
     async after({ created, questions }) {
