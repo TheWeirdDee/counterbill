@@ -57,6 +57,8 @@ export interface DocumentRow {
   sha256: string;
   version: number;
   supersedesRef: string | null;
+  /** Set once a replacement of this document has been parsed; its evidence is then out of play. */
+  supersededByRef: string | null;
   parseStatus: string;
   parseError: string | null;
   extractionMethod: string | null;
