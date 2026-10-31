@@ -514,7 +514,7 @@ export function AddEvidenceDialog({ open, onClose }: { open: boolean; onClose: (
     <Dialog open={open} onClose={onClose} title="Add evidence" footer={<button type="button" className="btn" onClick={onClose}>Close</button>}>
       {isDemo ? (
         <p>
-          Sample cases take the published evidence offered on the Overview tab, so the demonstration stays tied to the public report. Create an account to upload your own documents.
+          Example cases take the published evidence offered on the Overview tab, so the example stays tied to the public report. Create an account to upload your own documents.
         </p>
       ) : (
         <>
