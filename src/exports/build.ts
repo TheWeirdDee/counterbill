@@ -91,6 +91,9 @@ export async function buildExports(caseId: string): Promise<{ items: BuiltExport
   if (g.c.isDemo) sum.note(DEMO_NOTE);
   const mode = g.run?.inferenceMode === 'test' ? 'TEST MODE: a deterministic stand-in produced the agent outputs, not a live language model.' : `Agent analysis by ${g.run?.model ?? 'a configured model'} through the Mozaik runtime; every figure below was calculated by deterministic code.`;
   sum.note(`A billing difference is not automatically a recoverable overcharge. This summary lists what the documents show and what they do not. It is not legal advice. ${mode}`);
+  if (g.draft.evidenceRevision < g.c.revision) {
+    sum.note(`Warning: evidence changed after the letter draft was written (draft built at evidence revision ${g.draft.evidenceRevision}; the case is at ${g.c.revision}). Review what changed before relying on the letter.`);
+  }
   if (g.assessment) {
     sum.heading('Current reading');
     sum.text(ASSESSMENT_CLASS_LABEL[g.assessment.classification as keyof typeof ASSESSMENT_CLASS_LABEL] ?? g.assessment.classification, { size: 10.5, bold: true });
