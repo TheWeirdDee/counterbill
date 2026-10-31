@@ -2,7 +2,8 @@
 
 Run on 31 October 2026 on the development machine: Windows 11, Node 24.13, pnpm 11.5, embedded PostgreSQL 18, Chromium via
 Playwright 1.64. Outcomes below are copied from the logs of those runs. **What each layer uses in place of a language model is
-stated per row; no run used a real model.**
+stated per row.** The default suite makes no call to any model provider; the real-Gemini runs are separate and are recorded in
+[`LIVE_RESULTS.md`](LIVE_RESULTS.md).
 
 ## Summary
 
@@ -10,16 +11,19 @@ stated per row; no run used a real model.**
 |---|---|---|---|
 | Types | `pnpm typecheck` (TypeScript 6.0) | exit 0, no errors | n/a |
 | Lint | `pnpm lint` (ESLint, Next + TypeScript rules) | 0 errors, 0 warnings | n/a |
-| Unit | `pnpm test` | 34 passed (2 files) | n/a |
-| Integration | `pnpm test:integration` | 19 passed (3 files): `story` 9, `resilience` 9, `live-path` 1 | `story`, `resilience`: **test mode** runner. `live-path`: **local fake of the OpenAI Responses API** |
-| Browser e2e | `pnpm test:e2e` (production build served on :3100) | 19 passed | **test mode** runner |
+| Unit | `pnpm test` | 49 passed (3 files): arithmetic, citations, letter merge, uploads, schemas, **provider limits** (429/5xx retries, quota, pacing, key rejection), Gemini schema dialect, classification guard, question de-duplication | n/a |
+| Integration | `pnpm test:integration` | 21 passed + 1 opt-in skipped (4 files): `story` 9, `resilience` 9, `live-path` 1, `model-limiter` 2; `live-gemini` skipped unless `RUN_LIVE_GEMINI=1` | `story`, `resilience`: **test mode** runner. `live-path`: **local fake of the OpenAI Responses API** |
+| Opt-in live | `RUN_LIVE_GEMINI=1 pnpm exec vitest run tests/integration/live-gemini.test.ts` | 1 passed | **Real Gemini API** (free tier): quota exhausted on `gemini-3.1-pro-preview` fails fast and clearly |
+| Browser e2e | `pnpm test:e2e` (production build served on :3100) | 19 passed (see note) | **test mode** runner |
 | Build | `pnpm build` (Next.js 16.4.3, Turbopack) | success | n/a |
 
-`pnpm exec vitest run` (unit + integration together): **5 files, 53 tests passed**, 141 s.
+`pnpm exec vitest run` (unit + integration together): **70 passed, 1 skipped (the opt-in live test), 8 files**, 175 s.
 
-The final full browser run was 18 passed / 1 failed; the failure was a test race (it edited the letter while the Drafting
-Agent was still saving a newer version, so the conditional write was correctly refused). The test now waits for the letter
-to catch up, and that test passed on re-run (55 s). Earlier runs surfaced real defects that were fixed (see "What the tests found").
+The final full browser run (after the Gemini changes) was 18 passed / 1 failed. The failure was a test race (it measured the loading
+skeleton, which shares a class with the real summary strip, just as it was replaced); the test now waits for the real content and
+the responsive suite passed 9/9 on re-run. An earlier full run had one different race (editing the letter while the Drafting
+Agent was still saving a newer version, correctly refused as a conflict); fixed the same way. Earlier runs also surfaced real defects that
+were fixed (see "What the tests found").
 
 ## What the integration tests prove (real worker processes, real Mozaik runtime, real PostgreSQL)
 
@@ -65,7 +69,7 @@ Sample → live investigation → add survey → revised finding and letter → 
 
 ## What was not tested
 
-- Any real language model; the accuracy of extraction on real documents; latency under a real provider.
+- Any model other than `gemini-3.5-flash-lite` (and the one quota check on `gemini-3.1-pro-preview`); the accuracy of extraction on real customer documents; behaviour under sustained load or a paid-tier quota.
 - Real PDFs and scanned images beyond type/signature validation and the "needs manual review" path (no OCR).
 - A hosted deployment, a restart of a hosted deployment, or SSE through a production proxy.
 - Safari/Firefox; a screen reader (ARIA roles, live regions and focus order were checked by assertion only).
