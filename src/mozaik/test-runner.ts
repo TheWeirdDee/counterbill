@@ -40,7 +40,6 @@ export class ScriptedInferenceRunner implements InferenceRunner {
     }
     return answer(JSON.stringify(script(name, user, {})));
   }
-  // eslint-disable-next-line require-yield
   async *stream(): AsyncGenerator<SemanticEvent> {
     throw new Error('The test runner does not stream.');
   }
