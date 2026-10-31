@@ -47,7 +47,7 @@ test('investigation workspace is usable from 320px to desktop; footer is not on 
   await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'Add published survey finding' }).click();
   await expect(page.getByText(/Assessment v2 ·/)).toBeVisible({ timeout: 90_000 });
-  await expect(page.getByText(/Draft letter: v2/)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText('Up to date')).toBeVisible({ timeout: 60_000 }); // the letter has caught up with the evidence
   await expect(page.locator('footer.site-footer')).toHaveCount(0);
 
   const base = page.url();
@@ -66,23 +66,23 @@ test('investigation workspace is usable from 320px to desktop; footer is not on 
     }
   }
 
-  // screenshots for the README (only when SHOTS=1)
-  await page.setViewportSize({ width: 1280, height: 900 });
+  // screenshots for the README (only when SHOTS=1): viewport captures, as a person would see them
+  await page.setViewportSize({ width: 1280, height: 1500 });
   await page.goto(base);
   await page.waitForTimeout(800);
-  await shot(page, 'workspace-overview');
+  await shot(page, 'workspace-overview', false);
   await page.goto(`${base}/activity`);
   await page.waitForTimeout(800);
-  await shot(page, 'activity-concurrency');
+  await shot(page, 'activity-concurrency', false);
   await page.goto(`${base}/findings`);
-  await shot(page, 'findings');
+  await shot(page, 'findings', false);
   await page.goto(`${base}/letter`);
   await page.waitForTimeout(500);
-  await shot(page, 'letter');
+  await shot(page, 'letter', false);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(base);
   await page.waitForTimeout(800);
-  await shot(page, 'workspace-mobile');
+  await shot(page, 'workspace-mobile', false);
 
   // keyboard: skip link first, dialog opens from a source chip, Esc closes and focus returns to the chip
   await page.setViewportSize({ width: 1280, height: 900 });
