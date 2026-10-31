@@ -96,6 +96,7 @@ async function runBilling(reason: string, triggerEventId: string) {
       };
 
       const results: { r: ComparisonResult; facts: FactRow[]; note: string | null }[] = [];
+      const autoMissing: { variable: string; reason: string }[] = [];
       out.comparisons.forEach((c, i) => {
         const where = `comparisons[${i}] (${c.topic})`;
         const billed = get(c.billedVolumeFact, /^(billed_volume_cbm|chargeable_volume_cbm)$/, `${where}.billedVolumeFact`);
@@ -103,7 +104,15 @@ async function runBilling(reason: string, triggerEventId: string) {
         const rate = get(c.rateFact, /^rate_per_cbm$/, `${where}.rateFact`);
         const min = c.topic === 'billed_vs_contract_term' ? get(c.contractMinimumFact, /^minimum_chargeable_cbm$/, `${where}.contractMinimumFact`) : null;
         if (!billed || !comp || !rate || (c.topic === 'billed_vs_contract_term' && !min)) {
-          if (!problems.length) problems.push(`${where}: missing a required fact reference`);
+          // A slot the model left empty means the input does not exist yet: that is a missing variable, not an error.
+          // (A reference to a fact that does not exist, or has the wrong type, was already reported as a problem above.)
+          const empties = [
+            !c.billedVolumeFact && 'a billed volume',
+            !c.comparisonVolumeFact && (c.topic === 'billed_vs_declared' ? 'a packing-list (declared) volume' : 'a measured volume'),
+            !c.rateFact && 'a rate per CBM',
+            c.topic === 'billed_vs_contract_term' && !c.contractMinimumFact && 'a contractual minimum volume',
+          ].filter(Boolean) as string[];
+          if (empties.length) autoMissing.push({ variable: `Inputs for the ${c.topic.replace(/_/g, ' ')} comparison`, reason: `No recorded fact provides ${empties.join(', ')}, so this comparison cannot be calculated yet.` });
           return;
         }
         try {
@@ -198,7 +207,8 @@ async function runBilling(reason: string, triggerEventId: string) {
       }
       // Missing variables become "missing evidence" findings; ones no longer reported are resolved.
       const missingTopics = new Set<string>();
-      for (const m of out.missingVariables) {
+      const allMissing = [...out.missingVariables, ...autoMissing];
+      for (const m of allMissing) {
         const topic = `missing:${m.variable.toLowerCase().replace(/[^a-z0-9]+/g, '_').slice(0, 50)}`;
         missingTopics.add(topic);
         const res = await applyFinding(
@@ -220,8 +230,8 @@ async function runBilling(reason: string, triggerEventId: string) {
         result: { changedCalcs, topics, findings },
         summary:
           n || sums.length
-            ? `Calculated ${n} comparison${n === 1 ? '' : 's'}${sums.length ? ` and ${sums.length} package sum${sums.length === 1 ? '' : 's'}` : ''}${out.missingVariables.length ? `; ${out.missingVariables.length} input${out.missingVariables.length === 1 ? '' : 's'} still missing` : ''}.`
-            : `No comparison is possible yet; ${out.missingVariables.length} input${out.missingVariables.length === 1 ? ' is' : 's are'} missing.`,
+            ? `Calculated ${n} comparison${n === 1 ? '' : 's'}${sums.length ? ` and ${sums.length} package sum${sums.length === 1 ? '' : 's'}` : ''}${allMissing.length ? `; ${allMissing.length} input${allMissing.length === 1 ? '' : 's'} still missing` : ''}.`
+            : `No comparison is possible yet; ${allMissing.length} input${allMissing.length === 1 ? ' is' : 's are'} missing.`,
       };
     },
     async after({ changedCalcs, topics, findings }) {
