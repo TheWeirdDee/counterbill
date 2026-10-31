@@ -36,7 +36,7 @@ Derived: hover, soft accent fill, focus ring, a stronger border for form control
 
 Type: Inter Tight (headings, wordmark) and Inter (body, controls), self-hosted variable fonts from `@fontsource-variable`, so there is no third-party request and no flash of fallback. `tests/e2e/visual.spec.ts` asserts the computed `font-family` of the hero heading, body and buttons and that the font files report `loaded`. Figures use tabular lining numerals. Body 16 px, app controls 14 px, hero 68 px at 1280 and above (clamped), 40 px on a phone, content width 1200 px, paragraphs 60 to 70 characters.
 
-Brand mark: two offset document edges and one check stroke (`src/components/BrandMark.tsx`, `src/app/icon.svg`). It uses `currentColor` plus the accent token, so it follows the theme; the favicon carries its own light/dark rules.
+Brand mark (revised after review): the first mark, two outlined documents and a check, was a generic document-verification symbol with thin strokes. It is replaced by a heavy **C** (counter) holding two unequal bars, the billed line and the line it is checked against, paired with a bolder wordmark (`src/components/BrandMark.tsx`, `src/app/icon.svg`). Strokes are 7 to 8 units of 64, so it holds at 16 px; it was rendered at 16, 24, 28 and 160 px and as the favicon on both backgrounds before being accepted. It uses `currentColor` plus the accent token, so it follows the theme; the favicon carries its own light/dark rules.
 
 Texture: a 56 px hairline grid (`.grid-bg`), 4 to 5 percent opacity, masked to fade out, on the landing hero, the closing band and the page intros only. It is absent behind documentation, forms, tables and the workspace.
 
@@ -51,6 +51,14 @@ Texture: a 56 px hairline grid (`.grid-bg`), 4 to 5 percent opacity, masked to f
 | green / amber / red on surface | 5.02 / 7.09 / 6.47 | 10.82 / 11.29 / 6.81 | 4.5 |
 | focus ring on canvas | 6.25 | 9.16 | 3 |
 | form-control border on canvas / surface | 3.24 / 3.48 | 3.79 / 3.59 | 3 |
+
+### Landing composition and spacing (revised after review)
+
+- Spacing is three separate rules instead of one padding: `--space-section` between sections (44 to 72 px per side, so about 128 px between adjacent sections at 1280 where the previous 56 to 104 px gave about 205 px), `--space-head` between a section heading and its content (24 to 36 px), and `--space-group` (16 px) between related items.
+- "What you leave with" now leads with the deliverable: an editable complaint preview (To, Subject, What we compared, What we ask, Annex, and the PDF / evidence-summary / CSV exports), with the comparison, sourced findings and open questions as a short list beside it. Implementation detail (arithmetic by code, citation rejection) moved to the docs.
+- The worked example (1.10 CBM, 0.75 CBM, ₦189,700) appears in the hero and in the walkthrough, where it is the point. "The problem" no longer repeats it: it shows three kinds of conflict people actually have. The example card says what the case is, not the numbers again. "The principal feature" label became "When something new turns up".
+- Motion explains rather than decorates: the hero visual builds in the order the product works (records, difference, finding, complaint), and the complaint preview assembles line by line as it scrolls into view. Reduced motion shows everything immediately; printing never leaves blank sections. The walkthrough remains labelled illustrative content, not a live run.
+- Mobile menu bug fixed: links to a section of the page you are already on (Product, How it works, FAQ) change only the hash, so the menu stayed open with scrolling locked. Any link click now closes it; a test covers it.
 
 ## 3. Two diagnoses requested
 
