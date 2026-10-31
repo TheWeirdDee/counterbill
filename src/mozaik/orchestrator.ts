@@ -152,7 +152,7 @@ export async function runInvestigation(runId: string): Promise<RunOutcome> {
 
   // ---- kick off: the first wave reacts independently to the same event
   const docs = await listDocuments(c.id);
-  const readyRefs = docs.filter((d) => d.parseStatus === 'ready').map((d) => d.ref);
+  const readyRefs = docs.filter((d) => d.parseStatus === 'ready' && !d.supersededByRef).map((d) => d.ref);
   const trigger = run.trigger as { documentRefs?: string[]; reason?: string; events?: { type: string; payload: Record<string, unknown> }[] };
   if (run.kind === 'reassess') {
     // A reassessment starts from what changed, never from case.started: only affected agents wake up.
