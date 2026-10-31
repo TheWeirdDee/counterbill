@@ -7,9 +7,9 @@ const SLUG = 'volume-dispute-aug-2026';
 const files = (n: string) => path.resolve('tests/e2e/files', n);
 
 async function startDemo(page: Page) {
-  await page.goto(`/demo/${SLUG}`);
-  await page.getByRole('button', { name: /Investigate this sample case/ }).click();
-  await page.waitForURL(new RegExp(`/demo/${SLUG}/[0-9a-f-]{36}`));
+  await page.goto(`/examples/${SLUG}`);
+  await page.getByRole('button', { name: /Start this example/ }).click();
+  await page.waitForURL(new RegExp(`/examples/${SLUG}/[0-9a-f-]{36}`));
 }
 async function waitForAssessment(page: Page, v: number) {
   await expect(page.getByText(new RegExp(`Assessment v${v} ·`))).toBeVisible({ timeout: 90_000 });
@@ -208,10 +208,10 @@ test('stream interruption and reconnect: UI converges on the stored state with n
   await page.waitForTimeout(5000);
   await page.unroute('**/api/cases/*/events*');
   await waitForAssessment(page, 1);
-  await expect(page.getByText('Live', { exact: true }).first()).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText('Connected', { exact: true }).first()).toBeVisible({ timeout: 20_000 });
   await tab(page, 'Activity').click();
   await page.getByRole('button', { name: 'Event list' }).click();
-  const base = page.url().split('/activity')[0].replace(/\/demo\/[^/]+\//, '/api/cases/');
+  const base = page.url().split('/activity')[0].replace(/\/examples\/[^/]+\//, '/api/cases/');
   // the run may still be finishing when the page loads: the UI list must converge on exactly the stored events
   await expect
     .poll(async () => {
@@ -227,7 +227,7 @@ test('stream interruption and reconnect: UI converges on the stored state with n
 
 test('a refresh mid-investigation keeps a consistent state', async ({ page }) => {
   await startDemo(page);
-  await expect(page.getByText(/Agents/).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Agents', exact: true })).toBeVisible();
   await page.waitForTimeout(2500);
   await page.reload();
   await waitForAssessment(page, 1);
@@ -242,15 +242,17 @@ test('sample stays usable when the public report site is unreachable (cached exc
   await waitForAssessment(page, 1);
   await page.getByRole('button', { name: 'Add published survey finding' }).click();
   await waitForAssessment(page, 2);
-  await page.getByRole('button', { name: /Open NSC report excerpt/ }).click();
+  await page.getByRole('button', { name: /NSC report excerpt/ }).click();
   await expect(page.getByRole('dialog')).toContainText('cached locally');
   await expect(page.getByRole('dialog')).toContainText('Reported surveyed volume: 0.75 CBM');
 });
 
 test('the public landing page explains the product and its limits', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText("doesn’t add up");
-  await expect(page.getByRole('link', { name: 'Investigate a sample case' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Question the charge.');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Build your case.');
+  await expect(page.getByRole('link', { name: 'Explore an example' }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Start a case' }).first()).toBeVisible();
   await expect(page.getByText('1.10 CBM').first()).toBeVisible();
   await expect(page.getByText('₦189,700').first()).toBeVisible();
   await expect(page.getByText('Unresolved', { exact: true })).toBeVisible();
