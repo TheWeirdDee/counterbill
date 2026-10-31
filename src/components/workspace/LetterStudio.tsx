@@ -240,7 +240,7 @@ export function LetterStudio() {
                 <textarea
                   id={`ls-${s.id}`}
                   value={textOf(s)}
-                  rows={Math.max(2, Math.min(14, textOf(s).split('\n').reduce((n, l) => n + Math.ceil(l.length / 78) || 1, 0)))}
+                  rows={Math.max(2, Math.min(14, textOf(s).split('\n').reduce((n, l) => n + (Math.ceil(l.length / 78) || 1), 0)))}
                   readOnly={!editable}
                   onFocus={() => setActive(s.id)}
                   onChange={(e) => setEdits({ ...edits, [s.id]: e.target.value })}
@@ -312,22 +312,27 @@ export function LetterStudio() {
           <span>I have reviewed the facts and understand this draft does not establish legal entitlement.</span>
         </label>
         <div className="row">
-          <button type="button" className="btn btn-primary" disabled={!reviewed || !!busy} onClick={() => get('complaint_pdf')}>
+          <button type="button" className="btn btn-primary" disabled={!reviewed || !!busy || !!state.activeRun} onClick={() => get('complaint_pdf')}>
             {busy === 'complaint_pdf' ? 'Preparing…' : 'Download PDF'}
           </button>
-          <button type="button" className="btn" disabled={!reviewed || !!busy} onClick={() => get('evidence_summary_pdf')}>
+          <button type="button" className="btn" disabled={!reviewed || !!busy || !!state.activeRun} onClick={() => get('evidence_summary_pdf')}>
             {busy === 'evidence_summary_pdf' ? 'Preparing…' : 'Download evidence summary'}
           </button>
           <button type="button" className="btn" onClick={copy}>
             {copied ? 'Copied' : 'Copy text'}
           </button>
-          <button type="button" className="btn btn-ghost" disabled={!reviewed || !!busy} onClick={() => get('discrepancies_csv')}>
+          <button type="button" className="btn btn-ghost" disabled={!reviewed || !!busy || !!state.activeRun} onClick={() => get('discrepancies_csv')}>
             Discrepancies (CSV)
           </button>
-          <button type="button" className="btn btn-ghost" disabled={!reviewed || !!busy} onClick={showPreview}>
+          <button type="button" className="btn btn-ghost" disabled={!reviewed || !!busy || !!state.activeRun} onClick={showPreview}>
             Preview PDF
           </button>
         </div>
+        {state.activeRun ? (
+          <p role="status" className="muted" style={{ fontSize: '0.88rem' }}>
+            The investigation is still updating the case, so downloads are paused until the letter reflects the latest evidence.
+          </p>
+        ) : null}
         <p className="muted" style={{ fontSize: '0.84rem', marginBottom: 0 }}>
           There is no send button on purpose: you review the letter and send it yourself. Exports never include your uploaded documents. Source documents can contain names, addresses and payment details, so review who receives the pack before sharing it.
         </p>
